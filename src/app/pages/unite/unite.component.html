@@ -1,0 +1,139 @@
+<!-- HTML (Template) - Updated -->
+<div class="topbar">
+    <div class="logo">
+      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    </div>
+    <div class="menu-center">
+      <!-- Accueil -->
+      <a class="menu-button" href="#">Acceuil</a>
+    
+      <!-- Équipement -->
+      <a class="menu-button" href="#">Équipement</a>
+    
+      <!-- Utilisateur -->
+      <a class="menu-button" href="#">Utilisateur</a>
+    
+      <!-- Mouvement -->
+      <div class="dropdown">
+        <button class="menu-button">Mouvement</button>
+        <div class="dropdown-content">
+          <a href="#">Réforme</a>
+          <a href="#">Réaffectation</a>
+          <a href="#">Prêt</a>
+        </div>
+      </div>
+    
+      <!-- Codification -->
+      <div class="dropdown">
+        <button class="menu-button">Codification</button>
+        <div class="dropdown-content">
+          <a href="http://localhost:4200/orange">Organe</a>
+          <a href="http://localhost:4200/marque">Marque</a>
+          <a href="http://localhost:4200/categorie">Catégorie</a>
+          <a href="http://localhost:4200/typeq">Type</a>
+          <a href="http://localhost:4200/caracteristique">Caractéristique</a>
+          <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
+        </div>
+      </div>
+    </div>
+    
+    
+  
+    <div class="profile" (click)="profileOpen = !profileOpen">
+      <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+      <span class="profile-name">{{ username }}</span>
+      <div class="profile-menu" *ngIf="profileOpen">
+        <div class="menu-username">{{ username }}</div>
+        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+  
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="idunite">ID</option>
+        <option value="codeunite">Code</option>
+        <option value="designation">Désignation</option>
+        <option value="nomwilaya">wilaya</option>
+        <option value="nomregion">Region</option>
+      </select>
+  
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+  
+      <div class="spacer"></div>
+      <button class="btn orange" (click)="openForm()">+ Nouveau Unite</button>
+    </div>
+  
+    <h2 class="header">Liste des Unite</h2>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th (click)="toggleSort('codeunite')">Code</th>
+          <th (click)="toggleSort('designation')">Désignation</th>
+          <th (click)="toggleSort('wilaya')">Wilaya</th>
+          <th (click)="toggleSort('region')">Région</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of unites">
+            <td>{{ u.idunite }}</td>
+            <td>{{ u.codeunite }}</td>
+            <td>{{ u.designation }}</td>
+            <td>{{ u.nomwilaya }}</td> <!-- ✅ Affichage du nom de la wilaya -->
+            <td>{{ u.nomregion }}</td>
+         
+          <td>
+            <button class="btn btn-warning me-2" (click)="openForm(u)">✏️</button>
+            <button class="btn btn-danger orange" (click)="deleteUnite(u)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="modal" *ngIf="showForm">
+        <div class="form">
+            <h3>{{ selectedUnite ? 'Modifier' : 'Ajouter' }} une Unite</h3>
+      
+          <form>
+            <div class="form-group">
+              <label for="designation">Désignation</label>
+              <input id="designation" name="designation" [(ngModel)]="designation_input" required />
+            </div>
+      
+            <div class="form-group">
+              <label for="wilaya">Wilaya</label>
+              <select id="wilaya" name="wilaya" [(ngModel)]="selectedWilaya" required>
+                <option *ngFor="let wilaya of wilayas" [value]="wilaya.idwilaya">
+                  {{ wilaya.nomwilaya }}
+                </option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <label for="region">Région</label>
+              <select id="region" name="region" [(ngModel)]="selectedRegion" required>
+                <option *ngFor="let region of regions" [value]="region.idregion">
+                  {{ region.nomregion }}
+                </option>
+              </select>
+            </div>
+      
+            <div class="actions">
+              <button type="button" class="btn orange" (click)="saveUnite()">💾 Enregistrer</button>
+              <button type="button" class="btn grey" (click)="closeForm()">❌ Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+  </div>
+  
+  <!-- Ajouté : profile-img, menu-username, logout-btn dans SCSS si manquant -->
+  

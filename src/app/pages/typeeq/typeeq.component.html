@@ -1,0 +1,103 @@
+<div class="topbar">
+    <div class="logo">
+      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    </div>
+  
+    <div class="menu-center">
+      <!-- Accueil -->
+      <a class="menu-button" href="#">Acceuil</a>
+    
+      <!-- Équipement -->
+      <a class="menu-button" href="#">Équipement</a>
+    
+      <!-- Utilisateur -->
+      <a class="menu-button" href="#">Utilisateur</a>
+    
+      <!-- Mouvement -->
+      <div class="dropdown">
+        <button class="menu-button">Mouvement</button>
+        <div class="dropdown-content">
+          <a href="#">Réforme</a>
+          <a href="#">Réaffectation</a>
+          <a href="#">Prêt</a>
+        </div>
+      </div>
+    
+      <!-- Codification -->
+      <div class="dropdown">
+        <button class="menu-button">Codification</button>
+        <div class="dropdown-content">
+          <a href="http://localhost:4200/organe">Organe</a>
+          <a href="http://localhost:4200/marque">Marque</a>
+          <a href="http://localhost:4200/categorie">Catégorie</a>
+          <a href="http://localhost:4200/unite">Unité</a>
+          <a href="http://localhost:4200/caracteristique">Caractéristique</a>
+          <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
+        </div>
+      </div>
+    </div>
+  
+    <div class="profile" (click)="profileOpen = !profileOpen">
+      <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+      <span class="profile-name">{{ username }}</span>
+      <div class="profile-menu" *ngIf="profileOpen">
+        <div class="menu-username">{{ username }}</div>
+        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+      
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="idtypequip">ID</option>
+        <option value="codetype">Code</option>
+        <option value="designation">Désignation</option>
+      </select>
+      
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+      
+      <div class="spacer"></div>
+      <button class="btn orange" (click)="openForm()">+ Nouveau Type</button>
+    </div>
+  
+    <h2 class="header">Liste des Types</h2>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Code</th>
+          <th>Désignation</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of types">
+          <td>{{ t.idtypequip }}</td>
+          <td>{{ t.codetype }}</td>
+          <td>{{ t.designation }}</td>
+          <td>
+            <button class="btn btn-warning me-2" (click)="openForm(t)">✏️</button>
+            <button class="btn btn-danger orange" (click)="deleteType(t)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div class="modal" *ngIf="showForm">
+      <div class="form">
+        <h3>{{ selectedType ? 'Modifier' : 'Ajouter' }} un Type</h3>
+        <input class="form-control" type="text" [(ngModel)]="designation_input" placeholder="Désignation du type" />
+        <div class="actions">
+          <button class="btn orange" (click)="saveType()">💾 Enregistrer</button>
+          <button class="btn grey" (click)="closeForm()">❌ Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

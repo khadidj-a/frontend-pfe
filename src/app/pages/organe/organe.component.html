@@ -1,0 +1,147 @@
+<!-- HTML (Template) - Updated -->
+<div class="topbar">
+    <div class="logo">
+      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    </div>
+    <div class="menu-center">
+      <!-- Accueil -->
+      <a class="menu-button" href="#">Acceuil</a>
+    
+      <!-- Équipement -->
+      <a class="menu-button" href="#">Équipement</a>
+    
+      <!-- Utilisateur -->
+      <a class="menu-button" href="#">Utilisateur</a>
+    
+      <!-- Mouvement -->
+      <div class="dropdown">
+        <button class="menu-button">Mouvement</button>
+        <div class="dropdown-content">
+          <a href="#">Réforme</a>
+          <a href="#">Réaffectation</a>
+          <a href="#">Prêt</a>
+        </div>
+      </div>
+    
+      <!-- Codification -->
+      <div class="dropdown">
+        <button class="menu-button">Codification</button>
+        <div class="dropdown-content">
+          <a href="http://localhost:4200/orange">Organe</a>
+          <a href="http://localhost:4200/marque">Marque</a>
+          <a href="http://localhost:4200/categorie">Catégorie</a>
+          <a href="http://localhost:4200/typeq">Type</a>
+          <a href="http://localhost:4200/caracteristique">Caractéristique</a>
+          <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
+        </div>
+      </div>
+    </div>
+    
+    
+  
+    <div class="profile" (click)="profileOpen = !profileOpen">
+      <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+      <span class="profile-name">{{ username }}</span>
+      <div class="profile-menu" *ngIf="profileOpen">
+        <div class="menu-username">{{ username }}</div>
+        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+  
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="idorgane">ID</option>
+        <option value="codeorgane">Code</option>
+        <option value="libelle_organe">Libellé</option>
+        <option value="nommarque">Marque</option>
+      </select>
+  
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+  
+      <div class="spacer"></div>
+      <button class="btn orange" (click)="openForm()">+ Nouveau Organe</button>
+    </div>
+  
+    <h2 class="header">Liste des Organes</h2>
+  
+    <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th (click)="toggleSort('code_organe')">Code</th>
+            <th (click)="toggleSort('libelle_organe')">Libellé</th>
+            <th (click)="toggleSort('nom_marque')">Marque</th>
+            <th>Caractéristiques</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let org of organes">
+            <td>{{ org.id_organe }}</td>
+            <td>{{ org.code_organe }}</td>
+            <td>{{ org.libelle_organe }}</td>
+            <td>{{ org.nom_marque }}</td>
+            <td>
+              <ng-container *ngIf="org.caracteristiques && org.caracteristiques.length > 0; else noCarac">
+                <span *ngFor="let c of org.caracteristiques; let i = index">
+                  {{ c.nomcaracteristique }}<span *ngIf="i < org.caracteristiques.length - 1">, </span>
+                </span>
+              </ng-container>
+              <ng-template #noCarac>Aucune</ng-template>
+            </td>          
+            <td>
+              <button class="btn btn-warning me-2" (click)="openForm(org)">✏️</button>
+              <button class="btn btn-danger orange" (click)="deleteOrgane(org)">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+    <div class="modal" *ngIf="showForm">
+      <div class="form">
+        <h3>{{ selectedOrgane ? 'Modifier' : 'Ajouter' }} un Organe</h3>
+  
+        <form>
+            <div class="form-group">
+              <label for="libelle_organe">Libellé</label>
+              <input id="libelle_organe" name="libelle_organe" [(ngModel)]="libelle_input" [ngModelOptions]="{standalone: true}" required />
+            </div>
+          
+            <div class="form-group">
+              <label for="marque">Marque</label>
+              <select id="marque" name="marque" [(ngModel)]="selectedMarque" [ngModelOptions]="{standalone: true}" required>
+                <option *ngFor="let marque of marques" [value]="marque.idmarque">{{ marque.nom_fabriquant }}</option>
+              </select>
+            </div>
+          
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Caractéristiques</label>
+                <div *ngFor="let carac of caracteristiques" class="flex items-center mb-1">
+                  <input
+                    type="checkbox"
+                    [value]="carac.id"
+                    [(ngModel)]="carac.checked"
+                    [ngModelOptions]="{standalone: true}"
+                    (change)="onCheckboxChange(carac)"
+                    class="mr-2"
+                  />
+                  <label>{{ carac.libelle }}</label>
+                </div>
+              </div>
+              
+          
+            <div class="actions">
+              <button type="button" class="btn orange" (click)="saveOrgane()">💾 Enregistrer</button>
+              <button type="button" class="btn grey" (click)="closeForm()">❌ Annuler</button>
+            </div>
+          </form>
+          
+      </div>
+    </div>
+  </div>
+  

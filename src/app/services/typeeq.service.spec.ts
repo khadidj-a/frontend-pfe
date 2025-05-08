@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TypeeqService } from './typeeq.service';
+import { TypeService } from './typeeq.service';
 
 describe('TypeeqService', () => {
-  let service: TypeeqService;
+  let service: TypeService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(TypeeqService);
+    service = TestBed.inject(TypeService);
   });
 
   it('should be created', () => {

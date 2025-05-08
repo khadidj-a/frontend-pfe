@@ -26,6 +26,10 @@ export class UniteService {
   updateUnite(id: number, dto: { designation: string, idwilaya: number, idregion: number }): Observable<Unite> {
     return this.http.put<Unite>(`${this.apiUrl}/${id}`, dto);
   }
+  canDelete(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/canDelete/${id}`);
+  }
+
 
   deleteUnite(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
@@ -42,4 +46,8 @@ export class UniteService {
   getUniteById(id: number): Observable<Unite> {
     return this.http.get<Unite>(`${this.apiUrl}/${id}`);
   }
+  getUniteCount(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/count`);
+  }
+  
 }

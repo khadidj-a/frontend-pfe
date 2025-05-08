@@ -1,11 +1,12 @@
 <div class="topbar">
   <div class="logo">
     <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
   </div>
 
   <div class="menu-center">
     <!-- Accueil -->
-    <a class="menu-button" href="#" >Acceuil</a>
+    <a class="menu-button" href="#">Dashbord</a>
   
     <!-- Équipement -->
     <a class="menu-button" href="#">Équipement</a>
@@ -25,12 +26,13 @@
   
     <!-- Codification -->
     <div class="dropdown">
-      <button class="menu-button">Codification</button>
+      <button class="menu-button">Table de Codification</button>
       <div class="dropdown-content">
+        <a href="http://localhost:4200/marque">Marque</a>
         <a href="http://localhost:4200/organe">Organe</a>
         <a href="http://localhost:4200/unite">Unité</a>
         <a href="http://localhost:4200/categorie">Catégorie</a>
-        <a href="http://localhost:4200/typeq">Type</a>
+        <a href="http://localhost:4200/typeeq">Type</a>
         <a href="http://localhost:4200/caracteristique">Caractéristique</a>
         <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
       </div>
@@ -51,7 +53,6 @@
   <div class="toolbar">
     <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
     <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
-      <option value="idmarque">ID</option>
       <option value="codemarque">Code</option>
       <option value="nom_fabriquant">Nom Fabricant</option>
     </select>
@@ -59,32 +60,67 @@
       <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
     </button>
     <div class="spacer"></div>
-    <button class="btn orange" (click)="openForm()">+ Nouvelle Marque</button>
+    <button class="btn orange" (click)="openForm()">+ Ajouter Marque</button>
   </div>
 
-  <h2 class="header">Liste des Marques</h2>
+  <h2 class="header">Liste des Marques
+    <span class="tooltip badge">
+      {{ marqueCount }}
+      <span class="tooltip-text">Nombre total des Marques</span>
+    </span>
+  </h2>
 
   <table>
     <thead>
       <tr>
-        <th>#</th>
         <th>Code</th>
         <th>Nom Fabricant</th>
-        <th>Actions</th>
+        <th style="text-align: left;">
+          <span style="display: inline-block; transform: translateX(500px);">Actions</span>
+        </th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let m of marques">
-        <td>{{ m.idmarque }}</td>
         <td>{{ m.codemarque }}</td>
         <td>{{ m.nom_fabriquant }}</td>
         <td>
-          <button class="btn btn-warning me-2" (click)="openForm(m)">✏️</button>
-          <button class="btn btn-danger orange" (click)="deleteMarque(m)">🗑️</button>
+          <button class="btn btn-warning me-2 tooltip" (click)="openForm(m)">
+            ✏️
+            <span class="tooltip-text">Modifier cette marque</span>
+          </button>            
+          <button class="btn btn-danger orange tooltip tooltip-left" (click)="deleteMarque(m)">
+            🗑️
+            <span class="tooltip-text">Supprimer cette marque</span>
+          </button>  
         </td>
       </tr>
     </tbody>
   </table>
+  <!-- MODALE SUPPRESSION -->
+<div class="modal" *ngIf="showDeleteConfirm">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette marque ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDelete()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDelete()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!--  MODALE DECONNEXION -->
+<div class="modal" *ngIf="showLogoutConfirm">
+  <div class="form">
+    <h3>Déconnexion</h3>
+    <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmLogout()">Oui</button>
+      <button class="btn grey" (click)="cancelLogout()"> Non</button>
+    </div>
+  </div>
+</div>
+
 
   <div class="modal" *ngIf="showForm">
     <div class="form">

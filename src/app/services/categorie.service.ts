@@ -30,7 +30,7 @@ export class CategorieService {
     return this.http.get<Categorie>(`${this.baseUrl}/${id}`);
   }
 
-  create(categorie: { categorie_principale: string; designation: string }): Observable<Categorie> {
+  create(categorie: {  designation: string }): Observable<Categorie> {
     return this.http.post<Categorie>(this.baseUrl, categorie);
   }
 
@@ -44,5 +44,8 @@ export class CategorieService {
 
   canDelete(id: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/canDelete/${id}`);
+  }
+  getCategorieCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/count`);
   }
 }

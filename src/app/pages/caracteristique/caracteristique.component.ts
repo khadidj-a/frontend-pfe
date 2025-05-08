@@ -22,12 +22,17 @@ export class CaracteristiqueComponent implements OnInit {
   profileOpen = false;
   username = 'Utilisateur';
  isDropdownOpen = false;
-
+showDeleteConfirm = false;
+categorieToDelete: Caracteristique | null = null;
+caracteristiqueCount: number = 0;
+showLogoutConfirm = false;
 
   constructor(private carService: CaracteristiqueService) {}
 
   ngOnInit(): void {
     this.loadCaracteristiques();
+    
+    this.getCaracteristiqueCount();
   }
 
   
@@ -72,7 +77,7 @@ export class CaracteristiqueComponent implements OnInit {
   }
 
   saveCaracteristique(): void {
-     if (!this.selectedCar ) {
+     if (!this.libelle_input ) {
       alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -94,25 +99,6 @@ export class CaracteristiqueComponent implements OnInit {
     }
   }
 
-  deleteCaracteristique(car: Caracteristique): void {
-    this.carService.canDelete(car.id_caracteristique).subscribe(canDelete => {
-      if (!canDelete) {
-        alert("Cette caractéristique est utilisée dans un équipement. Suppression impossible.");
-        return;
-      }
-  
-      if (confirm('Voulez-vous vraiment supprimer cette caractéristique ?')) {
-        this.carService.delete(car.id_caracteristique).subscribe(() => {
-          this.loadCaracteristiques();
-        });
-      }
-    });
-  }
-  
-
-  
-  
-
   toggleSort(col: string): void {
     if (this.sortBy === col) {
       this.ascending = !this.ascending;
@@ -122,7 +108,52 @@ export class CaracteristiqueComponent implements OnInit {
     }
     this.search();
   }
-  logout() {
-    alert("Déconnexion !");
+ 
+  // Supprimer l'ancienne mauvaise méthode deleteCaracteristique
+deleteCaracteristique(car: Caracteristique): void {
+  this.carService.canDelete(car.id_caracteristique).subscribe(canDelete => {
+    if (!canDelete) {
+      alert("Cette caractéristique est utilisée dans un équipement. Suppression impossible.");
+      return;
+    }
+    this.categorieToDelete = car;
+    this.showDeleteConfirm = true;
+  });
+}
+
+confirmDeleteCaracteristique(): void {
+  if (this.categorieToDelete) {
+    this.carService.delete(this.categorieToDelete.id_caracteristique).subscribe(() => {
+      this.loadCaracteristiques();
+      this.categorieToDelete = null;
+      this.showDeleteConfirm = false;
+    });
   }
+}
+
+cancelDeleteCaracteristique(): void {
+  this.categorieToDelete = null;
+  this.showDeleteConfirm = false;
+}
+
+  
+   logout() {
+     this.showLogoutConfirm = true;
+   }
+   
+   confirmLogout() {
+     this.showLogoutConfirm = false;
+     // redirige vers login ou autre action
+     window.location.href = "/login"; // ou un appel à AuthService.logout()
+   }
+   
+   cancelLogout() {
+     this.showLogoutConfirm = false;
+   }
+   getCaracteristiqueCount() {
+    this.carService.getCaracteristiqueCount().subscribe(count => {
+    this.caracteristiqueCount = count;
+  });
+}
+
 }

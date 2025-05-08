@@ -16,18 +16,29 @@ export class TypeEqptComponent implements OnInit {
   selectedType: TypeEqpt | null = null;
   designation_input = '';
   searchTerm = '';
-  sortBy = 'idtypequip';
+  sortBy = 'codetype';
   ascending = true;
   showForm = false;
   profileOpen = false;
   isDropdownOpen = false;
   username = 'Admin';
-
+  showDeleteConfirm = false;
+  typeToDelete: TypeEqpt | null = null;
+  
+ typeCount: number = 0;
+  showLogoutConfirm = false;
+  
   constructor(private typeService: TypeService) {}
 
   ngOnInit(): void {
     this.loadTypes();
+    this.getTypeCount();
   }
+  getTypeCount() {
+    this.typeService.getTypeCount().subscribe(count => {
+    this.typeCount = count;
+  });
+}
 
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
@@ -75,7 +86,7 @@ export class TypeEqptComponent implements OnInit {
   }
 
   saveType() {
-    if (!this.selectedType ) {
+    if (!this.designation_input) {
       alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -97,13 +108,45 @@ export class TypeEqptComponent implements OnInit {
     }
   }
 
-  deleteType(type: TypeEqpt) {
-    if (confirm("Voulez-vous vraiment supprimer ce type ?")) {
-      this.typeService.deleteType(type.idtypequip).subscribe(() => this.loadTypes());
-    }
-  }
 
-  logout() {
-    alert("Déconnexion !");
-  }
+    deletetype(type: TypeEqpt) {
+      this.typeService.canDelete(type.idtypequip).subscribe(can => {
+        if (!can) {
+          alert("Impossible de supprimer ce Type, elle est utilisée.");
+          return;
+        }
+        this.typeToDelete = type;
+        this.showDeleteConfirm = true;
+      });
+    }
+    
+    confirmDelete() {
+      if (this.typeToDelete) {
+        this.typeService.deleteType(this.typeToDelete.idtypequip).subscribe(() => {
+          this.loadTypes();
+          this.typeToDelete = null;
+          this.showDeleteConfirm = false;
+        });
+      }
+    }
+    
+    cancelDelete() {
+      this.typeToDelete = null;
+      this.showDeleteConfirm = false;
+    }
+    
+ logout() {
+  this.showLogoutConfirm = true;
+}
+
+confirmLogout() {
+  this.showLogoutConfirm = false;
+  // redirige vers login ou autre action
+  window.location.href = "/login"; // ou un appel à AuthService.logout()
+}
+
+cancelLogout() {
+  this.showLogoutConfirm = false;
+}
+
 }

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class CaracteristiqueService {
-  private apiUrl = 'http://localhost:5186/api/caracteristique'; // 🔧 corrigé
+  private apiUrl = 'http://localhost:5186/api/caracteristique'; 
 
   constructor(private http: HttpClient) {}
 
@@ -34,5 +34,8 @@ export class CaracteristiqueService {
 
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+  getCaracteristiqueCount(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/count`);
   }
 }

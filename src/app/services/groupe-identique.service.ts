@@ -1,35 +1,52 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { GroupeIdentiqueDTO, UpdateGroupeIdentiqueDTO,GroupeCaracteristique,GroupeOrgane } from '../models/groupe-identique.model';
 import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+
+@Injectable({ providedIn: 'root' })
 export class GroupeIdentiqueService {
-  private baseUrl = 'http://localhost:5186/api/groupeidentique';
+  private baseUrl = 'http://localhost:5186/api/GroupeIdentique';
 
   constructor(private http: HttpClient) {}
 
-  getAll(searchTerm: string = '', sortBy: string = '', ascending: boolean = true): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}?searchTerm=${searchTerm}&sortBy=${sortBy}&ascending=${ascending}`);
+  GetAll(searchTerm = '', sortBy = 'id', ascending = true): Observable<GroupeIdentiqueDTO[]> {
+    const params = new HttpParams()
+      .set('searchTerm', searchTerm)
+      .set('sortBy', sortBy)
+      .set('ascending', ascending);
+
+    return this.http.get<GroupeIdentiqueDTO[]>(this.baseUrl, { params });
   }
 
-  getAllOrganes(): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:5186/api/organe`);
+  getById(id: number): Observable<GroupeIdentiqueDTO> {
+    return this.http.get<GroupeIdentiqueDTO>(`${this.baseUrl}/${id}`);
   }
 
-  getAllCaracteristiques(): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:5186/api/caracteristique`);
+  update(id: number, dto: UpdateGroupeIdentiqueDTO): Observable<GroupeIdentiqueDTO> {
+    return this.http.put<GroupeIdentiqueDTO>(`${this.baseUrl}/${id}`, dto);
   }
 
-  update(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, data);
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  delete(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  canDelete(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseUrl}/canDelete/${id}`);
   }
-    canDelete(id: number): Observable<boolean> {
-      return this.http.get<boolean>(`${this.baseUrl}/CanDelete/${id}`);
-     }
+  getOrganesByMarqueEtType(marqueId: number, typeId: number): Observable<GroupeOrgane[]> {
+    return this.http.get<GroupeOrgane[]>(
+      `http://localhost:5186/api/organe/type/${typeId}/marque/${marqueId}`
+    );
+  }
+
+  //  Obtenir les caractéristiques liées à une marque et un type d'équipement
+  getCaracteristiquesByMarqueEtType(marqueId: number, typeId: number): Observable<GroupeCaracteristique[]> {
+    return this.http.get<GroupeCaracteristique[]>(
+      `http://localhost:5186/api/caracteristique/type/${typeId}/marque/${marqueId}`
+    );
+  }
+  getGroupeCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/count`);
+  }
 }

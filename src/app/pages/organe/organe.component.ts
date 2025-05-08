@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { OrganeService } from '../../services/organe.service';
 import { Organe, Marque, Caracteristique } from '../../models/organe.model';
 
+
 @Component({
   selector: 'app-organe',
   standalone: true,
@@ -14,14 +15,12 @@ import { Organe, Marque, Caracteristique } from '../../models/organe.model';
 export class OrganeComponent implements OnInit {
   organes: Organe[] = [];
   selectedOrgane: Organe | null = null;
-  marques: any[] = []; // à charger depuis ton service
-caracteristiques: any[] = []; // à charger depuis ton service
+  marques: Marque[] = [];
+  caracteristiques: (Caracteristique & { checked?: boolean, valeur?: string })[] = [];
 
-selectedMarqueId: number | null = null;
-selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
-
+  selectedMarqueId: number | null = null;
   searchTerm = '';
-  sortBy = 'idorgane';
+  sortBy = 'codeorgane';
   ascending = true;
   showForm = false;
   profileOpen = false;
@@ -31,6 +30,11 @@ selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
   code_input = '';
   libelle_input = '';
   selectedMarque: number | null = null;
+  showDeleteConfirm = false;
+organeToDelete: Organe | null = null;
+modele_input = '';
+organeCount: number = 0;
+showLogoutConfirm = false;
 
   constructor(private organeService: OrganeService) {}
 
@@ -38,6 +42,7 @@ selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
     this.loadOrganes();
     this.loadMarques();
     this.loadCaracteristiques();
+    this.getOrganeCount();
   }
 
   toggleDropdown() {
@@ -51,6 +56,11 @@ selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
       this.isDropdownOpen = false;
     }
   }
+  getOrganeCount() {
+    this.organeService.getOrganeCount().subscribe(count => {
+    this.organeCount = count;
+  });
+}
 
   loadOrganes() {
     this.organeService.getOrganes(this.searchTerm, this.sortBy, this.ascending)
@@ -59,14 +69,30 @@ selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
         error: err => console.error("Erreur chargement organes :", err)
       });
   }
-
   loadMarques() {
-    this.organeService.getMarques().subscribe(data => this.marques = data);
+    this.organeService.getMarques().subscribe({
+      next: data => {
+        console.log("Marques chargées :", data);
+        this.marques = data;
+      },
+      error: err => console.error("Erreur chargement marques :", err)
+    });
   }
-
+  
   loadCaracteristiques() {
-    this.organeService.getCaracteristiques().subscribe(data => this.caracteristiques = data);
+    this.organeService.getCaracteristiques().subscribe({
+      next: data => {
+        console.log("Caractéristiques chargées :", data);
+        this.caracteristiques = data.map(carac => ({
+          ...carac,
+          checked: false,
+          valeur: ''
+        }));
+      },
+      error: err => console.error("Erreur chargement caractéristiques :", err)
+    });
   }
+  
 
   search() {
     this.loadOrganes();
@@ -81,59 +107,77 @@ selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
     }
     this.loadOrganes();
   }
+ 
   openForm(organe?: Organe) {
-    this.selectedOrgane = organe || null;
-    this.code_input = organe?.code_organe || '';
+    this.selectedOrgane = organe ?? null; // <==== ajoute cette ligne !
     this.libelle_input = organe?.libelle_organe || '';
     this.selectedMarque = organe?.id_marque || null;
-    this.selectedCaracteristiques = organe?.caracteristiques.map(c => c.idcaracteristique) || [];
-  
-    // Mettre à jour l'état des checkboxes
+    this.modele_input = organe?.modele || '';
+
+
+    // Reset toutes les caractéristiques
     this.caracteristiques.forEach(carac => {
-      carac.checked = this.selectedCaracteristiques.includes(carac.id);
+      carac.checked = false;
+      carac.valeur = '';
     });
-  
+
+    if (organe?.caracteristiques) {
+      for (const c of organe.caracteristiques) {
+        const found = this.caracteristiques.find(carac => carac.id_caracteristique === c.idcaracteristique);
+        if (found) {
+          found.checked = true;
+          found.valeur = c.valeur;
+        }
+      }
+    }
+
     this.showForm = true;
   }
-  
 
   closeForm() {
-    this.selectedOrgane = null;
-    this.code_input = '';
-    this.libelle_input = '';
-    this.selectedMarque = null;
-    this.selectedCaracteristiques = [];
     this.showForm = false;
+    this.selectedOrgane = null; // <==== ajoute ça !
   }
-  onCheckboxChange(carac: any) {
-    if (carac.checked) {
-      this.selectedCaracteristiques.push(carac.id);
-    } else {
-      this.selectedCaracteristiques = this.selectedCaracteristiques.filter(id => id !== carac.id);
-    }
-  }
-  
+
   saveOrgane() {
-    if (!this.code_input || !this.libelle_input || !this.selectedMarque) {
-      alert("Veuillez remplir tous les champs obligatoires.");
+    if (!this.caracteristiques || !this.libelle_input || !this.selectedMarque || !this.modele_input) {
+      alert('Veuillez remplir tous les champs requis.');
       return;
     }
+    const modeleExiste = this.organes.some(o =>
+      o.modele.toLowerCase() === this.modele_input.trim().toLowerCase() &&
+      (!this.selectedOrgane || o.id_organe !== this.selectedOrgane.id_organe)
+    );
+    
+    if (modeleExiste) {
+      alert("Le modèle existe déjà !");
+      return;
+    }
+    
+    const selectedCaracteristiques = this.caracteristiques
+      .filter(c => c.checked)
+      .map(c => ({
+        id_caracteristique: c.id_caracteristique,
+        valeur: c.valeur || ''
+      }));
 
-    const dto = {
-      code_organe: this.code_input,
+    const organeData = {
       libelle_organe: this.libelle_input,
       id_marque: this.selectedMarque,
-      id_caracteristiques: this.selectedCaracteristiques
+      modele: this.modele_input,
+      caracteristiques: selectedCaracteristiques
     };
 
     if (this.selectedOrgane) {
-      this.organeService.updateOrgane(this.selectedOrgane.id_organe, dto)
+      // Modifier
+      this.organeService.updateOrgane(this.selectedOrgane.id_organe, organeData)
         .subscribe(() => {
           this.loadOrganes();
           this.closeForm();
         });
     } else {
-      this.organeService.createOrgane(dto)
+      // Créer
+      this.organeService.createOrgane(organeData)
         .subscribe(() => {
           this.loadOrganes();
           this.closeForm();
@@ -141,24 +185,51 @@ selectedCaracteristiques: number[] = []; // tableau d'IDs sélectionnés
     }
   }
 
-  deleteOrgane(organe: Organe) {
-    this.organeService.canDelete(organe.id_organe).subscribe(canDelete => {
-      if (!canDelete) {
-        alert("Impossible de supprimer : cet organe est lié à un équipement.");
-        return;
+    deleteorgane(organe: Organe) {
+      this.organeService.canDelete(organe.id_organe).subscribe(can => {
+        if (!can) {
+          alert("Impossible de supprimer ce organe, il est utilisée.");
+          return;
+        }
+        this.organeToDelete = organe;
+        this.showDeleteConfirm = true;
+      });
+    }
+    
+    confirmDelete() {
+      if (this.organeToDelete) {
+        this.organeService.deleteOrgane(this.organeToDelete.id_organe).subscribe(() => {
+          this.loadOrganes();
+          this.organeToDelete = null;
+          this.showDeleteConfirm = false;
+        });
       }
-
-      if (confirm("Voulez-vous vraiment supprimer cet organe ?")) {
-        this.organeService.deleteOrgane(organe.id_organe)
-          .subscribe({
-            next: () => this.loadOrganes(),
-            error: err => alert(err.error || "Erreur lors de la suppression.")
-          });
-      }
-    });
+    }
+    
+    cancelDelete() {
+      this.organeToDelete = null;
+      this.showDeleteConfirm = false;
+    }
+    
+  onCheckboxChange(carac: Caracteristique & { checked?: boolean, valeur?: string }) {
+    if (!carac.checked) {
+      carac.valeur = '';
+    }
   }
 
+ 
   logout() {
-    alert("Déconnexion !");
+    this.showLogoutConfirm = true;
   }
+  
+  confirmLogout() {
+    this.showLogoutConfirm = false;
+    // redirige vers login ou autre action
+    window.location.href = "/login"; // ou un appel à AuthService.logout()
+  }
+  
+  cancelLogout() {
+    this.showLogoutConfirm = false;
+  }
+  
 }

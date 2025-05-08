@@ -7,49 +7,58 @@ import { Organe, Caracteristique, Marque } from '../models/organe.model';
   providedIn: 'root'
 })
 export class OrganeService {
-  private baseUrl = 'http://localhost:5186/api/organe';
+  private baseUrl = 'http://localhost:5186/api/organe'; // Attention casse correcte: "organe"
 
   constructor(private http: HttpClient) {}
 
-  getOrganes(search = '', sortBy = 'id_organe', ascending = true): Observable<Organe[]> {
-    const params = new HttpParams()
-      .set('search', search)
-      .set('sortBy', sortBy)
-      .set('ascending', ascending.toString());
-    return this.http.get<Organe[]>(`${this.baseUrl}`, { params }); // PAS de /all
+  // Récupérer tous les organes avec recherche + tri
+  getOrganes(search = '', sortBy = '', ascending = true): Observable<Organe[]> {
+    let params = new HttpParams();
+    if (search) params = params.set('searchTerm', search);
+    if (sortBy) params = params.set('sortBy', sortBy);
+    params = params.set('ascending', ascending.toString());
+
+    return this.http.get<Organe[]>(`${this.baseUrl}`, { params });
   }
-  
+
+  // Créer un nouvel organe - Le code est AUTO-GÉNÉRÉ par le backend, donc on ne l'envoie pas
   createOrgane(data: {
-    code_organe: string;
     libelle_organe: string;
     id_marque: number;
-    id_caracteristiques: number[];
+    caracteristiques: { id_caracteristique: number; valeur: string }[];
   }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/create`, data);
+    return this.http.post(`${this.baseUrl}`, data);
   }
 
+  //  Modifier un organe existant
   updateOrgane(id: number, data: {
-    code_organe: string;
     libelle_organe: string;
     id_marque: number;
-    id_caracteristiques: number[];
+    caracteristiques: { id_caracteristique: number; valeur: string }[];
   }): Observable<any> {
-    return this.http.put(`${this.baseUrl}/update/${id}`, data);
+    return this.http.put(`${this.baseUrl}/${id}`, data);
   }
 
+  //  Supprimer un organe
   deleteOrgane(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/delete/${id}`);
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
-  getCaracteristiques(): Observable<Caracteristique[]> {
-    return this.http.get<Caracteristique[]>(`http://localhost:5186/api/caracteristique`);
-  }
-
-  getMarques(): Observable<Marque[]> {
-    return this.http.get<Marque[]>(`http://localhost:5186/api/marque`);
-  }
+  // Vérifier si l'organe peut être supprimé (pas lié à un équipement)
   canDelete(id: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/canDelete/${id}`);
   }
+
   
+  getCaracteristiques(): Observable<Caracteristique[]> {
+    return this.http.get<Caracteristique[]>('http://localhost:5186/api/caracteristique');
+  }
+
+  getMarques(): Observable<Marque[]> {
+    return this.http.get<Marque[]>('http://localhost:5186/api/marque');
+ 
+  }
+  getOrganeCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/count`);
+  }
 }

@@ -1,11 +1,12 @@
 <div class="topbar">
-    <div class="logo">
-      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
-    </div>
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
   
     <div class="menu-center">
       <!-- Accueil -->
-      <a class="menu-button" href="#">Acceuil</a>
+      <a class="menu-button" href="#">Dashbord</a>
     
       <!-- Équipement -->
       <a class="menu-button" href="#">Équipement</a>
@@ -25,8 +26,9 @@
     
       <!-- Codification -->
       <div class="dropdown">
-        <button class="menu-button">Codification</button>
+        <button class="menu-button">Table de Codification</button>
         <div class="dropdown-content">
+          <a href="http://localhost:4200/typeeq">Type</a>
           <a href="http://localhost:4200/organe">Organe</a>
           <a href="http://localhost:4200/marque">Marque</a>
           <a href="http://localhost:4200/categorie">Catégorie</a>
@@ -52,7 +54,6 @@
       <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
       
       <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
-        <option value="idtypequip">ID</option>
         <option value="codetype">Code</option>
         <option value="designation">Désignation</option>
       </select>
@@ -62,37 +63,70 @@
       </button>
       
       <div class="spacer"></div>
-      <button class="btn orange" (click)="openForm()">+ Nouveau Type</button>
+      <button class="btn orange" (click)="openForm()">+ Ajouter Type</button>
     </div>
   
-    <h2 class="header">Liste des Types</h2>
+    <h2 class="header">Liste des Types
+      <span class="tooltip badge">
+        {{ typeCount }}
+        <span class="tooltip-text">Nombre total des Types</span>
+      </span>
+    </h2>
   
     <table>
       <thead>
         <tr>
-          <th>#</th>
           <th>Code</th>
           <th>Désignation</th>
-          <th>Actions</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(500px);">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let t of types">
-          <td>{{ t.idtypequip }}</td>
           <td>{{ t.codetype }}</td>
           <td>{{ t.designation }}</td>
           <td>
-            <button class="btn btn-warning me-2" (click)="openForm(t)">✏️</button>
-            <button class="btn btn-danger orange" (click)="deleteType(t)">🗑️</button>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(t)">✏️
+              <span class="tooltip-text">Modifier ce Type</span>
+            </button>
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deletetype(t)">🗑️
+              <span class="tooltip-text">Supprimer ce Type</span></button>
           </td>
         </tr>
       </tbody>
     </table>
+    <!-- Modal de suppression -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm">
+  <div class="modal">
+    <div class="form">
+      <h3>Confirmer la suppression</h3>
+      <p>Voulez-vous vraiment supprimer le type <strong>{{ typeToDelete?.designation }}</strong> ?</p>
+      <div class="actions">
+        <button class="btn orange" (click)="confirmDelete()">🗑️ Supprimer</button>
+        <button class="btn grey" (click)="cancelDelete()">❌ Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
   
     <div class="modal" *ngIf="showForm">
       <div class="form">
         <h3>{{ selectedType ? 'Modifier' : 'Ajouter' }} un Type</h3>
-        <input class="form-control" type="text" [(ngModel)]="designation_input" placeholder="Désignation du type" />
+        <input class="form-control" type="text" [(ngModel)]="designation_input" placeholder="Désignation " />
         <div class="actions">
           <button class="btn orange" (click)="saveType()">💾 Enregistrer</button>
           <button class="btn grey" (click)="closeForm()">❌ Annuler</button>

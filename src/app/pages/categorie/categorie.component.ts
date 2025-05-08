@@ -15,24 +15,25 @@ export class CategorieComponent implements OnInit {
   categories: Categorie[] = [];
   selectedCategorie: Categorie | null = null;
   categorie_input: any = {
-    categorie_principale: '',
     designation: ''
   };
   searchTerm = '';
-  sortBy = 'idcategorie';
+  sortBy = 'codecategorie';
   ascending = true;
   showForm = false;
   profileOpen = false;
   username = 'Utilisateur';
   isDropdownOpen = false;
+  showDeleteConfirm = false;
+categorieToDelete: Categorie| null = null;
 
-  // Options de Catégorie Principale (à remplir dynamiquement ou en dur)
-  categoriePrincipaleOptions: string[] = ['Roulants', 'Fixes', 'Soutien'];
-
+showLogoutConfirm = false;
+categorieCount: number = 0;
   constructor(private categorieService: CategorieService) {}
 
   ngOnInit(): void {
     this.loadCategories();
+    this.getCategorieCount();
   }
 
   toggleDropdown() {
@@ -54,7 +55,11 @@ export class CategorieComponent implements OnInit {
         console.log("Catégories chargées :", data);
       });
   }
-
+  getCategorieCount() {
+    this.categorieService.getCategorieCount().subscribe(count => {
+    this.categorieCount = count;
+  });
+}
   search() {
     this.loadCategories();
   }
@@ -62,7 +67,6 @@ export class CategorieComponent implements OnInit {
   openForm(categorie?: Categorie): void {
     this.selectedCategorie = categorie || null;
     this.categorie_input = {
-      categorie_principale: categorie ? categorie.categorie_principale : '',
       designation: categorie ? categorie.designation : ''
     };
     this.showForm = true;
@@ -72,20 +76,18 @@ export class CategorieComponent implements OnInit {
     this.showForm = false;
     this.selectedCategorie = null;
     this.categorie_input = {
-      categorie_principale: '',
       designation: ''
     };
   }
 
   saveCategorie(): void {
-    if (!this.selectedCategorie ) {
+    if (!this.categorie_input ) {
       alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
     const data: Categorie = {
       idcategorie: this.selectedCategorie?.idcategorie || 0,
-      categorie_principale: this.categorie_input.categorie_principale,
-      codecategorie: '', // Géré automatiquement côté backend ?
+      codecategorie: '',
       designation: this.categorie_input.designation
     };
 
@@ -102,21 +104,6 @@ export class CategorieComponent implements OnInit {
     }
   }
 
-  deleteCategorie(categorie: Categorie): void {
-    this.categorieService.canDelete(categorie.idcategorie).subscribe(canDelete => {
-      if (!canDelete) {
-        alert("Cette catégorie est utilisée dans un équipement. Suppression impossible.");
-        return;
-      }
-  
-      if (confirm('Voulez-vous vraiment supprimer cette catégorie ?')) {
-        this.categorieService.delete(categorie.idcategorie).subscribe(() => {
-          this.loadCategories();
-        });
-      }
-    });
-  }
-
   toggleSort(col: string): void {
     if (this.sortBy === col) {
       this.ascending = !this.ascending;
@@ -127,7 +114,47 @@ export class CategorieComponent implements OnInit {
     this.search();
   }
 
-  logout() {
-    alert("Déconnexion !");
+  
+    deletecategorie(categorie: Categorie) {
+      this.categorieService.canDelete(categorie.idcategorie).subscribe(can => {
+        if (!can) {
+          alert("Impossible de supprimer cette catégorie, elle est utilisée.");
+          return;
+        }
+        this.categorieToDelete = categorie;
+        this.showDeleteConfirm = true;
+      });
+    }
+    
+    confirmDelete() {
+      if (this.categorieToDelete) {
+        this.categorieService.delete(this.categorieToDelete.idcategorie).subscribe(() => {
+          this.loadCategories();
+          this.categorieToDelete = null;
+          this.showDeleteConfirm = false;
+        });
+      }
+    }
+    
+    cancelDelete() {
+      this.categorieToDelete = null;
+      this.showDeleteConfirm = false;
+    }
+   logout() {
+    this.showLogoutConfirm = true;
   }
+  
+  confirmLogout() {
+    this.showLogoutConfirm = false;
+    // redirige vers login ou autre action
+    window.location.href = "/login"; // ou un appel à AuthService.logout()
+  }
+  
+  cancelLogout() {
+    this.showLogoutConfirm = false;
+  }
+  
+   
+  
+
 }

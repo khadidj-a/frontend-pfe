@@ -1,11 +1,11 @@
 <div class="topbar">
-    <div class="logo">
-      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
-    </div>
-  
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
     <div class="menu-center">
         <!-- Accueil -->
-        <a class="menu-button" href="#">Acceuil</a>
+        <a class="menu-button" href="#">Dashbord</a>
       
         <!-- Équipement -->
         <a class="menu-button" href="#">Équipement</a>
@@ -25,12 +25,14 @@
       
         <!-- Codification -->
         <div class="dropdown">
-          <button class="menu-button">Codification</button>
+          <button class="menu-button">Table des Codifications</button>
           <div class="dropdown-content">
+            <a href="http://localhost:4200/caracteristique">Caractéristique</a>
+            <a href="http://localhost:4200/marque">Marque</a>
             <a href="http://localhost:4200/organe">Organe</a>
             <a href="http://localhost:4200/marque">Marque</a>
             <a href="http://localhost:4200/categorie">Catégorie</a>
-            <a href="http://localhost:4200/typeq">Type</a>
+            <a href="http://localhost:4200/typeeq">Type</a>
             <a href="http://localhost:4200/unite">Unité</a>
             <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
           </div>
@@ -50,42 +52,70 @@
   <div class="container">
     <div class="toolbar">
       <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
-      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
-        <option value="id_caracteristique">ID</option>
-        <option value="libelle">Libelle</option>
-      </select>
       <button class="btn sort-btn" (click)="toggleSort(sortBy)">
         <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
       </button>
       <div class="spacer"></div>
-      <button class="btn orange" (click)="openForm()">+ Nouvelle Caractéristique</button>
+      <button class="btn orange" (click)="openForm()">+ Ajouter Caractéristique</button>
     </div>
   
-    <h2 class="header">Liste des Caractéristique</h2>
+    <h2 class="header">Liste des Caractéristiques 
+      <span class="tooltip badge">
+        {{ caracteristiqueCount }}
+        <span class="tooltip-text">Nombre total des caracteristiques</span>
+      </span>
+    </h2>
     <table>
         <thead>
           <tr>
-    <th>#</th>
-    <th>Libellé</th>
-    <th>Actions</th>
+    <th>Désignation</th>
+    <th style="text-align: left;">
+      <span style="display: inline-block; transform: translateX(550px);">Actions</span>
+    </th>
           </tr>
         </thead>
         <tbody>  
     <tr *ngFor="let c of caracteristiques">
-      <td>{{ c.id_caracteristique }}</td>
       <td>{{ c.libelle }}</td>
       <td>
-        <button class="btn btn-warning me-2" (click)="openForm(c)">✏️</button>
-        <button class="btn btn-danger orange" (click)="deleteCaracteristique(c)">🗑️</button>
+        <button class="btn btn-warning me-2 tooltip" (click)="openForm(c)">✏️
+          <span class="tooltip-text">Modifier cette caracteristique</span></button>
+        <button class="btn btn-danger orange  tooltip tooltip-left" (click)="deleteCaracteristique(c)">🗑️
+          
+          <span class="tooltip-text">Supprimer cette caracteristique</span>
+        </button>
       </td>
     </tr>
 </tbody>
 </table>
   
+ <!-- Modal de suppression -->
+<div class="modal" *ngIf="showDeleteConfirm">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette caractéristique ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDeleteCaracteristique()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDeleteCaracteristique()">Annuler</button> 
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
     <div class="modal" *ngIf="showForm">
       <div class="form">
         <h3>{{ selectedCar ? 'Modifier' : 'Ajouter' }} une Caractéristique</h3>
-        <input class="form-control" type="text" [(ngModel)]="libelle_input" placeholder="libelle" />
+        <input class="form-control" type="text" [(ngModel)]="libelle_input" placeholder="Désignation" />
         <div class="actions">
           <button class="btn orange" (click)="saveCaracteristique()">💾 Enregistrer</button>
           <button class="btn grey" (click)="closeForm()">❌ Annuler</button>

@@ -14,7 +14,7 @@ import { Marque } from '../../models/marque.model';
 export class MarqueComponent implements OnInit {
   marques: Marque[] = [];
   searchTerm = '';
-  sortBy = 'idmarque';
+  sortBy = 'codemarque';
   ascending = true;
   selectedMarque: Marque | null = null;
   showForm = false;
@@ -22,12 +22,16 @@ export class MarqueComponent implements OnInit {
   profileOpen = false;
   username = 'Utilisateur';
  isDropdownOpen = false;
-
+ showDeleteConfirm = false;
+marqueToDelete: Marque | null = null;
+showLogoutConfirm = false;
+marqueCount: number = 0;
 
   constructor(private marqueService: MarqueService) {}
 
   ngOnInit(): void {
     this.loadMarques();
+    this.getMarqueCount();
   }
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
@@ -46,6 +50,11 @@ export class MarqueComponent implements OnInit {
     this.marqueService.getAll(this.searchTerm, this.sortBy, this.ascending)
       .subscribe(data => this.marques = data);
   }
+  getMarqueCount() {
+    this.marqueService.getMarqueCount().subscribe(count => {
+    this.marqueCount = count;
+  });
+}
 
   search() {
     this.loadMarques();
@@ -74,7 +83,7 @@ export class MarqueComponent implements OnInit {
   }
 
   saveMarque() {
-    if (!this.selectedMarque ) {
+    if (!this.nom_fabriquant_input ) {
       alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -97,20 +106,49 @@ export class MarqueComponent implements OnInit {
 
   deleteMarque(marque: Marque) {
     this.marqueService.canDelete(marque.idmarque).subscribe(can => {
-      if (!can) return alert("Impossible de supprimer cette marque, elle est utilisée.");
-      if (confirm("Voulez-vous vraiment supprimer cette marque ?")) {
-        this.marqueService.delete(marque.idmarque).subscribe(() => this.loadMarques());
+      if (!can) {
+        alert("Impossible de supprimer cette marque, elle est utilisée.");
+        return;
       }
+      this.marqueToDelete = marque;
+      this.showDeleteConfirm = true;
     });
   }
+  
+  confirmDelete() {
+    if (this.marqueToDelete) {
+      this.marqueService.delete(this.marqueToDelete.idmarque).subscribe(() => {
+        this.loadMarques();
+        this.marqueToDelete = null;
+        this.showDeleteConfirm = false;
+      });
+    }
+  }
+  
+  cancelDelete() {
+    this.marqueToDelete = null;
+    this.showDeleteConfirm = false;
+  }
+  
 
  // toggleProfileMenu() {
  //   this.profileOpen = !this.profileOpen;
  // }
 
-  logout() {
-    alert("Déconnexion !");
-  }
+ logout() {
+  this.showLogoutConfirm = true;
+}
+
+confirmLogout() {
+  this.showLogoutConfirm = false;
+  // redirige vers login ou autre action
+  window.location.href = "/login"; // ou un appel à AuthService.logout()
+}
+
+cancelLogout() {
+  this.showLogoutConfirm = false;
+}
+
  
 
 }

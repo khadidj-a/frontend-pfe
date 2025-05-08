@@ -27,8 +27,14 @@ export class TypeService {
   updateType(type: TypeEqpt): Observable<any> {
     return this.http.put(`${this.apiUrl}/${type.idtypequip}`, type);
   }
+  canDelete(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/canDelete/${id}`);
+  }
 
   deleteType(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+  getTypeCount(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/count`);
   }
 }

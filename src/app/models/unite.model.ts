@@ -13,9 +13,9 @@ export interface Wilaya {
     codeunite: string;
     designation: string;
     idwilaya: number;
-    nomwilaya: string; // ✅ Ajouté
+    nomwilaya: string; 
     idregion: number;
-    nomregion: string; // ✅ Ajouté
+    nomregion: string; 
   }
   
   

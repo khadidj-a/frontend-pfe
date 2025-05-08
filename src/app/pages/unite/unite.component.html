@@ -1,11 +1,12 @@
-<!-- HTML (Template) - Updated -->
 <div class="topbar">
-    <div class="logo">
-      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
-    </div>
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+  
     <div class="menu-center">
       <!-- Accueil -->
-      <a class="menu-button" href="#">Acceuil</a>
+      <a class="menu-button" href="#">Dashbord</a>
     
       <!-- Équipement -->
       <a class="menu-button" href="#">Équipement</a>
@@ -25,12 +26,13 @@
     
       <!-- Codification -->
       <div class="dropdown">
-        <button class="menu-button">Codification</button>
+        <button class="menu-button">Table de Codification</button>
         <div class="dropdown-content">
-          <a href="http://localhost:4200/orange">Organe</a>
+          <a href="http://localhost:4200/unite">Unité</a>
+          <a href="http://localhost:4200/organe">Organe</a>
           <a href="http://localhost:4200/marque">Marque</a>
           <a href="http://localhost:4200/categorie">Catégorie</a>
-          <a href="http://localhost:4200/typeq">Type</a>
+          <a href="http://localhost:4200/typeeq">Type</a>
           <a href="http://localhost:4200/caracteristique">Caractéristique</a>
           <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
         </div>
@@ -54,58 +56,108 @@
       <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
   
       <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
-        <option value="idunite">ID</option>
-        <option value="codeunite">Code</option>
+        <option value="codeunite">Code </option>
         <option value="designation">Désignation</option>
         <option value="nomwilaya">wilaya</option>
-        <option value="nomregion">Region</option>
+        <option value="nomregion">Région</option>
       </select>
-  
       <button class="btn sort-btn" (click)="toggleSort(sortBy)">
         <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
       </button>
   
       <div class="spacer"></div>
-      <button class="btn orange" (click)="openForm()">+ Nouveau Unite</button>
+      <button class="btn orange" (click)="openForm()">+ Ajouter Unité</button>
     </div>
   
-    <h2 class="header">Liste des Unite</h2>
-  
+    <h2 class="header">
+      Liste des Unités 
+      <span class="tooltip badge">
+        {{ uniteCount }}
+        <span class="tooltip-text">Nombre total des unités</span>
+      </span>
+    </h2>
+    
+    
     <table>
       <thead>
         <tr>
-          <th>#</th>
           <th (click)="toggleSort('codeunite')">Code</th>
           <th (click)="toggleSort('designation')">Désignation</th>
           <th (click)="toggleSort('wilaya')">Wilaya</th>
           <th (click)="toggleSort('region')">Région</th>
-          <th>Actions</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(180px);">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let u of unites">
-            <td>{{ u.idunite }}</td>
             <td>{{ u.codeunite }}</td>
             <td>{{ u.designation }}</td>
-            <td>{{ u.nomwilaya }}</td> <!-- ✅ Affichage du nom de la wilaya -->
+            <td>{{ u.nomwilaya }}</td>
             <td>{{ u.nomregion }}</td>
          
           <td>
-            <button class="btn btn-warning me-2" (click)="openForm(u)">✏️</button>
-            <button class="btn btn-danger orange" (click)="deleteUnite(u)">🗑️</button>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(u)">
+              ✏️
+              <span class="tooltip-text">Modifier cette unité</span>
+            </button>            
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deleteUnite(u)">
+              🗑️
+              <span class="tooltip-text">Supprimer cette unité</span>
+            </button>            
           </td>
         </tr>
       </tbody>
     </table>
+    <!-- Modal de suppression -->
+<div class="modal" *ngIf="showDeleteConfirmUnite">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette unité ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDeleteUnite()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDeleteUnite()">Annuler</button> 
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
     <div class="modal" *ngIf="showForm">
         <div class="form">
-            <h3>{{ selectedUnite ? 'Modifier' : 'Ajouter' }} une Unite</h3>
-      
+            <h3>{{ selectedUnite ? 'Modifier' : 'Ajouter' }} une Unité</h3>
+       
           <form>
+         
+<div class="form-group">
+
+  <label for="codeunite">Code Unité 
+  </label>
+  <input id="codeunite" name="codeunite" [(ngModel)]="codeunite_input" maxlength="2"  class="form-control" placeholder="Code Unité"
+   required />
+  <div class="error" *ngIf="codeError && codeError.includes('code')">
+    {{ codeError }}
+  </div>
+</div>
+
             <div class="form-group">
+              
               <label for="designation">Désignation</label>
-              <input id="designation" name="designation" [(ngModel)]="designation_input" required />
-            </div>
+              <input id="designation" name="designation" [(ngModel)]="designation_input" class="form-control"  placeholder="Désignation" required />
+              <div class="error" *ngIf="codeError && codeError.includes('désignation')">
+                {{ codeError }}
+              </div>
+            </div> 
       
             <div class="form-group">
               <label for="wilaya">Wilaya</label>
@@ -135,5 +187,4 @@
       
   </div>
   
-  <!-- Ajouté : profile-img, menu-username, logout-btn dans SCSS si manquant -->
   

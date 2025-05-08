@@ -1,11 +1,12 @@
 <!-- Topbar (identique pour toutes les pages) -->
 <div class="topbar">
-    <div class="logo">
-      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
-    </div>
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
   
     <div class="menu-center">
-      <a class="menu-button" href="#">Accueil</a>
+      <a class="menu-button" href="#">Dashbord</a>
       <a class="menu-button" href="#">Équipement</a>
       <a class="menu-button" href="#">Utilisateur</a>
   
@@ -19,12 +20,13 @@
       </div>
   
       <div class="dropdown">
-        <button class="menu-button">Codification</button>
+        <button class="menu-button">Table de Codification</button>
         <div class="dropdown-content">
+          <a href="http://localhost:4200/categorie">Catégorie</a>
           <a href="http://localhost:4200/organe">Organe</a>
           <a href="http://localhost:4200/marque">Marque</a>
           <a href="http://localhost:4200/caracteristique">Caractéristique</a>
-          <a href="http://localhost:4200/typeq">Type</a>
+          <a href="http://localhost:4200/typeeq">Type</a>
           <a href="http://localhost:4200/unite">Unité</a>
           <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
         </div>
@@ -48,8 +50,6 @@
       <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
   
       <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
-        <option value="idcategorie">ID</option>
-        <option value="categorie_principale">Catégorie Principale</option>
         <option value="codecategorie">Code</option>
         <option value="designation">Désignation</option>
       </select>
@@ -59,48 +59,72 @@
       </button>
   
       <div class="spacer"></div>
-      <button class="btn orange" (click)="openForm()">+ Nouvelle Catégorie</button>
+      <button class="btn orange" (click)="openForm()">+ Ajouter Catégorie</button>
     </div>
   
     <!-- Titre -->
-    <h2 class="header">Liste des Catégories</h2>
+    <h2 class="header">Liste des Catégories
+      <span class="tooltip badge">
+        {{ categorieCount }}
+        <span class="tooltip-text">Nombre total des Catégories</span>
+      </span>
+    </h2>
   
     <!-- Tableau -->
     <table>
       <thead>
         <tr>
-          <th>#</th>
-          <th>Catégorie Principale</th>
-          <th>Code</th>
+          <th>Code Catégorie</th>
           <th>Désignation</th>
-          <th>Actions</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(320px);">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let categorie of categories">
-          <td>{{ categorie.idcategorie }}</td>
-          <td>{{ categorie.categorie_principale }}</td>
           <td>{{ categorie.codecategorie }}</td>
           <td>{{ categorie.designation }}</td>
           <td>
-            <button class="btn btn-warning me-2" (click)="openForm(categorie)">✏️</button>
-            <button class="btn btn-danger orange" (click)="deleteCategorie(categorie)">🗑️</button>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(categorie)">✏️
+              <span class="tooltip-text">Modifier cette catégorie</span></button>
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deletecategorie(categorie)">🗑️
+              <span class="tooltip-text">Supprimer cette catégorie</span></button>
           </td>
         </tr>
       </tbody>
     </table>
   
+  <!-- MODALE SUPPRESSION -->
+<div class="modal" *ngIf="showDeleteConfirm">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette catégorie ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDelete()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDelete()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!--  MODALE DECONNEXION -->
+<div class="modal" *ngIf="showLogoutConfirm">
+  <div class="form">
+    <h3>Déconnexion</h3>
+    <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmLogout()">Oui</button>
+      <button class="btn grey" (click)="cancelLogout()"> Non</button>
+    </div>
+  </div>
+</div>
+
+
     <!-- Modal Formulaire -->
     <div class="modal" *ngIf="showForm">
       <div class="form">
         <h3>{{ selectedCategorie ? 'Modifier' : 'Ajouter' }} une Catégorie</h3>
-  
-        <select class="form-control" [(ngModel)]="categorie_input.categorie_principale">
-          <option *ngFor="let option of categoriePrincipaleOptions" [value]="option">{{ option }}</option>
-        </select>
-  
         <input class="form-control" type="text" [(ngModel)]="categorie_input.designation" placeholder="Désignation" />
-  
         <div class="actions">
           <button class="btn orange" (click)="saveCategorie()">💾 Enregistrer</button>
           <button class="btn grey" (click)="closeForm()">❌ Annuler</button>

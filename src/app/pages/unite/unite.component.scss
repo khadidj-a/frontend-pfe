@@ -32,6 +32,18 @@ body {
 .logo img {
   height: 45px;
 }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.site-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: rgb(224, 118, 26);
+  font-family: 'Inter', sans-serif; 
+}
 
 .menu-center {
   display: flex;
@@ -49,7 +61,7 @@ body {
   cursor: pointer;
   text-decoration: none;
   padding: 10px;
-  font-family: 'Inter', sans-serif; /* 👈 AJOUTE CECI ICI AUSSI */
+  font-family: 'Inter', sans-serif; 
 }
 
 
@@ -109,14 +121,16 @@ body {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-
+.profile-name{
+  color: rgb(224, 118, 26);
+}
 .profile-img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 8px;
-  border: 2px solid white;
+  border: 2px solid rgb(224, 118, 26);
 }
 
 .profile-menu {
@@ -171,6 +185,13 @@ body {
     gap: 10px;
     margin-bottom: 20px;
   }
+  .toolbar select.form-control,
+.toolbar .sort-btn {
+  height: 38px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
   
   .spacer {
     flex: 1;
@@ -189,14 +210,14 @@ body {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    border-radius: 12px;
+    border-radius: 15px;
     overflow: hidden;
   }
   
   th, td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 3px solid #eee;
   }
   
   th {
@@ -219,9 +240,51 @@ body {
     font-size: 14px;
     cursor: pointer;
   }
+  .badge {
+    background-color: rgb(224, 118, 26);
+    color: white;
+    padding: 4px 6px;
+    border-radius: 10px;
+    font-size: 18px;
+    margin-left: 10px;
+  }
+  
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    width: auto;
+    background-color:rgb(92, 93, 94);
+    color: #fff;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position au-dessus */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 13px;
+  }
+  .tooltip-left .tooltip-text {
+    left: auto;
+    right: 0;
+    transform: none;
+  }  
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
   
   .btn + .btn {
-    margin-left: 10px;
+    margin-left: 20px;
   }
   
   .orange {
@@ -282,6 +345,16 @@ body {
     margin-bottom: 20px;
     color: var(--color-dark-grey);
   }
+  .toolbar input.form-control {
+    
+    min-width: 350px;
+  }
+
+  table td:last-child {
+    text-align: right;
+    min-width: 130px; /* fixe une largeur minimale */
+  }
+  
   
   .form input,
   .form select {

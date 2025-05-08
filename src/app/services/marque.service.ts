@@ -34,6 +34,9 @@ export class MarqueService {
   canDelete(id: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/CanDelete/${id}`);
   }
+  getMarqueCount(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/count`);
+  }
 }
 
 

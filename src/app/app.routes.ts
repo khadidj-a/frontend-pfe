@@ -41,4 +41,5 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/groupe-identique/groupe-identique.component').then((m) => m.GroupeIdentiqueComponent),
   }
+  
 ];

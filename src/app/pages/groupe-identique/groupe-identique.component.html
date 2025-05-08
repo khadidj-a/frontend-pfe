@@ -1,136 +1,141 @@
-<!-- HTML (Template) - Updated -->
+
 <div class="topbar">
-    <div class="logo">
-      <img src="assets/logo-eng.jpg" alt="ENG Logo" />
-    </div>
-    <div class="menu-center">
-      <!-- Accueil -->
-      <a class="menu-button" href="#">Acceuil</a>
-    
-      <!-- Équipement -->
-      <a class="menu-button" href="#">Équipement</a>
-    
-      <!-- Utilisateur -->
-      <a class="menu-button" href="#">Utilisateur</a>
-    
-      <!-- Mouvement -->
-      <div class="dropdown">
-        <button class="menu-button">Mouvement</button>
-        <div class="dropdown-content">
-          <a href="#">Réforme</a>
-          <a href="#">Réaffectation</a>
-          <a href="#">Prêt</a>
-        </div>
-      </div>
-    
-      <!-- Codification -->
-      <div class="dropdown">
-        <button class="menu-button">Codification</button>
-        <div class="dropdown-content">
-          <a href="http://localhost:4200/orange">Organe</a>
-          <a href="http://localhost:4200/marque">Marque</a>
-          <a href="http://localhost:4200/categorie">Catégorie</a>
-          <a href="http://localhost:4200/typeq">Type</a>
-          <a href="http://localhost:4200/caracteristique">Caractéristique</a>
-          <a href="http://localhost:4200/unite">Unite</a>
-        </div>
-      </div>
-    </div>
-    
-    
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+  <div class="menu-center">
+    <!-- Accueil -->
+    <a class="menu-button" href="#">Dashbord</a>
   
-    <div class="profile" (click)="profileOpen = !profileOpen">
-      <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
-      <span class="profile-name">{{ username }}</span>
-      <div class="profile-menu" *ngIf="profileOpen">
-        <div class="menu-username">{{ username }}</div>
-        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    <!-- Équipement -->
+    <a class="menu-button" href="#">Équipement</a>
+  
+    <!-- Utilisateur -->
+    <a class="menu-button" href="#">Utilisateur</a>
+  
+    <!-- Mouvement -->
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="#">Réforme</a>
+        <a href="#">Réaffectation</a>
+        <a href="#">Prêt</a>
+      </div>
+    </div>
+  
+    <!-- Codification -->
+    <div class="dropdown">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content">
+        <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
+        <a href="http://localhost:4200/organe">Organe</a>
+        <a href="http://localhost:4200/unite">Unité</a>
+        <a href="http://localhost:4200/categorie">Catégorie</a>
+        <a href="http://localhost:4200/typeeq">Type</a>
+        <a href="http://localhost:4200/caracteristique">Caractéristique</a>
+        <a href="http://localhost:4200/marque">Marque</a>
       </div>
     </div>
   </div>
-  <div class="container">
-    <div class="toolbar">
-      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
-      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
-        <option value="idgroupe">ID</option>
-        <option value="designation">Désignation</option>
-        <option value="marque">Marque</option>
-        <option value="type">Type</option>
-      </select>
-      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
-        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
-      </button>
-      <div class="spacer"></div>
-    </div>
-  
-    <h2 class="header">Liste des Groupes Identiques</h2>
-  
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Désignation</th>
-          <th>Marque</th>
-          <th>Type</th>
-          <th>Organe</th>
-          <th>Caractéristique</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let g of groupesIdentiques">
-          <td>{{ g.id }}</td>
-          <td>{{ g.designation }}</td>
-          <td>{{ g.marqueNom }}</td>
-          <td>{{ g.TypeEquipNom  }}</td>
-          <td>
-            <ul>
-              <li *ngFor="let organe of g.organes">{{ organe }}</li>
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li *ngFor="let caracteristique of g.caracteristiques">{{ caracteristique }}</li>
-            </ul>
-          </td>
-          <td>
-            <button class="btn btn-warning" (click)="openForm(g)">✏️</button>
-            <button class="btn btn-danger" (click)="deleteGroupe(g)">🗑️</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  
-    <!-- Modal pour modifier Groupe Identique -->
-    <div class="modal" *ngIf="showForm">
-      <div class="form">
-        <h3>Modifier Groupe Identique</h3>
-        <form (ngSubmit)="updateGroupeIdentique()">
-          <div class="form-group">
-            <label for="designation">Désignation</label>
-            <input id="designation" [(ngModel)]="formData.designation" name="designation" class="form-control" required />
-          </div>
-  
-          <div class="form-group">
-            <label for="organes">Sélectionner Organes</label>
-            <select id="organes" multiple [(ngModel)]="formData.selectedOrganes" name="organes" class="form-control">
-              <option *ngFor="let organe of organes" [value]="organe.id">{{ organe.libelle }}</option>
-            </select>
-          </div>
-  
-          <div class="form-group">
-            <label for="caracteristiques">Sélectionner Caractéristiques</label>
-            <select id="caracteristiques" multiple [(ngModel)]="formData.selectedCaracteristiques" name="caracteristiques" class="form-control">
-              <option *ngFor="let caracteristique of caracteristiques" [value]="caracteristique.id">{{ caracteristique.libelle }}</option>
-            </select>
-          </div>
-  
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary">Mettre à jour</button>
-            <button type="button" class="btn btn-secondary" (click)="closeForm()">Annuler</button>
-          </div>
-        </form>
-      </div>
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ username }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+      <div class="menu-username">{{ username }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
     </div>
   </div>
+</div>
+
+<div class="container">
+  <div class="toolbar">
+    <input class="form-control"  type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="onSearch()" />
+    <select class="form-control"  [(ngModel)]="sortBy" (change)="onSearch()">
+      <option value="designation">Code </option>
+      <option value="typeEquipNom">Type</option>
+      <option value="marqueNom">Marque</option>
+    </select>
+    <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+      <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+    </button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Code </th>
+        <th>Marque</th>
+        <th>Type</th>
+        <th>Organes</th>
+        <th>Caractéristiques</th>
+        <th style="text-align: left;">
+          <span style="display: inline-block; transform: translateX(200px);">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let groupe of groupes">
+        <td>{{ groupe.CodeGrp  }}</td>
+        <td>{{ groupe.marqueNom }}</td>
+        <td>{{ groupe.typeEquipNom }}</td>
+        <td>
+          <ul>
+            <li *ngFor="let organe of groupe.organes">{{ organe }}</li>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <li *ngFor="let caracteristique of groupe.caracteristiques">{{ caracteristique }}</li>
+          </ul>
+        </td>
+        <td>
+          <button class="btn btn-warning me-2" (click)="edit(groupe.id)">✏️</button>
+            <button class="btn btn-danger orange" (click)="delete(groupe.id)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
   
+
+
+  <div class="modal" *ngIf="showForm">
+    <div class="modal-content">
+      <h2>Modifier un Organe</h2>
+  
+      <form  class="form-container">
+        <div class="form-group">  <label>Désignation</label>
+          <input [(ngModel)]="groupe.designation" name="designation" placeholder="Désignation"  required />
+      
+        </div><!-- Caractéristiques -->
+        <div class="form-group">  
+          <label>Caractéristiques</label>
+          <div *ngFor="let c of caracteristiques">
+            <input type="checkbox" 
+                   [value]="c.id" 
+                   (change)="toggleCarac(c.id)" 
+                   [checked]="groupe.caracteristiques.includes(c.id)" />
+            {{ c.libelle }}
+          </div>
+        </div>
+        
+        <!-- Organes -->
+        <div class="form-group">  
+          <label>Organes</label>
+          <div *ngFor="let o of organes">
+            <input type="checkbox" 
+                   [value]="o.id" 
+                   (change)="toggleOrgane(o.id)" 
+                   [checked]="groupe.organes.includes(o.id)"  />
+            {{ o.libelle }}
+          </div>
+        </div>
+        
+    <div class="form-group">
+    <div class="actions">
+      <button class="btn orange" type="submit" (click)="save()">💾 Enregistrer</button>
+
+      <button class="btn grey" type="submit"  (click)="closeForm()">❌ Annuler</button>
+    </div></div>
+  </form>
+</div>

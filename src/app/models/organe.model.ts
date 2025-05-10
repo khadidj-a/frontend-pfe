@@ -24,3 +24,7 @@ export interface Organe {
   modele: string; 
   caracteristiques: OrganeCaracteristique[];  // Liste des caractéristiques liées à l'organe
 }
+export interface Organee {
+  id_organe: number;
+  libelle_organe: string;
+}

@@ -1,0 +1,36 @@
+dialog-title {
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e65100; // Orange foncé
+  }
+  
+  .dialog-message {
+    font-size: 16px;
+    color: #424242; // Gris foncé
+    margin-top: 10px;
+  }
+  
+  :host ::ng-deep .mat-dialog-container {
+    background-color: #fff8f0 !important; // Fond blanc cassé orangé
+    color: #333 !important;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .mat-button {
+    color: #757575 !important; // Gris moyen
+  }
+  
+  .mat-raised-button {
+    background-color: #fb8c00 !important; // Orange vif
+    color: white !important;
+  }
+  
+  .mat-raised-button:hover {
+    background-color: #ef6c00 !important; // Orange plus foncé
+  }
+  

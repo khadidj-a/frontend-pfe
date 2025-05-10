@@ -1,7 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GroupeIdentiqueDTO, UpdateGroupeIdentiqueDTO,GroupeCaracteristique,GroupeOrgane } from '../models/groupe-identique.model';
+import { GroupeIdentiqueDTO, UpdateGroupeIdentiqueDTO } from '../models/groupe-identique.model';
 import { Observable } from 'rxjs';
+import { Organe } from '../models/organe.model';
+import { Caracteristique } from '../models/caracteristique.model';
 
 
 @Injectable({ providedIn: 'root' })
@@ -18,13 +20,20 @@ export class GroupeIdentiqueService {
 
     return this.http.get<GroupeIdentiqueDTO[]>(this.baseUrl, { params });
   }
-
-  getById(id: number): Observable<GroupeIdentiqueDTO> {
-    return this.http.get<GroupeIdentiqueDTO>(`${this.baseUrl}/${id}`);
+  update(id: number, dto: UpdateGroupeIdentiqueDTO) {
+    return this.http.put<void>(`${this.baseUrl}/${id}`, dto);
   }
-
-  update(id: number, dto: UpdateGroupeIdentiqueDTO): Observable<GroupeIdentiqueDTO> {
-    return this.http.put<GroupeIdentiqueDTO>(`${this.baseUrl}/${id}`, dto);
+  
+  getById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  }
+  
+  getCaracteristiquesByTypeAndMarque(typeId: number, marqueId: number) {
+    return this.http.get<Caracteristique[]>(`http://localhost:5186/api/caracteristique/type/${typeId}/marque/${marqueId}`);
+  }
+  
+  getOrganesByTypeAndMarque(typeId: number, marqueId: number) {
+    return this.http.get<Organe[]>(`http://localhost:5186/api/organe/type/${typeId}/marque/${marqueId}`);
   }
 
   delete(id: number): Observable<void> {
@@ -34,19 +43,8 @@ export class GroupeIdentiqueService {
   canDelete(id: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/canDelete/${id}`);
   }
-  getOrganesByMarqueEtType(marqueId: number, typeId: number): Observable<GroupeOrgane[]> {
-    return this.http.get<GroupeOrgane[]>(
-      `http://localhost:5186/api/organe/type/${typeId}/marque/${marqueId}`
-    );
-  }
-
-  //  Obtenir les caractéristiques liées à une marque et un type d'équipement
-  getCaracteristiquesByMarqueEtType(marqueId: number, typeId: number): Observable<GroupeCaracteristique[]> {
-    return this.http.get<GroupeCaracteristique[]>(
-      `http://localhost:5186/api/caracteristique/type/${typeId}/marque/${marqueId}`
-    );
-  }
   getGroupeCount(): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}/count`);
   }
+  
 }

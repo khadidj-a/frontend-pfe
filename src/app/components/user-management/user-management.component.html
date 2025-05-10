@@ -1,0 +1,70 @@
+<!-- HEADER STYLE DASHBOARD -->
+<header class="custom-header">
+  <div class="logo">
+    <img src="../../assets/logo.png" alt="Logo" />
+  </div>
+
+  <nav class="nav-links">
+    <div class="card" (click)="navigateTo('/dashboard')">Accueil</div>
+    <div class="card" (click)="navigateTo('/equipment')">Équipement</div>
+   
+    <div class="card" (click)="navigateTo('/movements')">Mouvement</div>
+    <div class="card" (click)="navigateTo('/codification')">Codification</div>
+  </nav>
+
+  <div class="profile">
+    <span class="profile-icon">👤</span>
+    <span class="profile-name">Admin</span>
+  </div>
+</header>
+
+<!-- USER MANAGEMENT COMPONENT -->
+<div class="user-management">
+  <!-- Ligne avec Retour et Ajouter -->
+  <div class="action-bar">
+    <button (click)="goBack()" class="btn-retour">← Retour au tableau de bord</button>
+    <button class="add-user-button" (click)="openAddDialog()">+ Ajouter un utilisateur</button>
+  </div>
+
+  <div *ngIf="message" class="success-message">{{ message }}</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <div class="search-bar">
+    <input
+      type="text"
+      placeholder="🔍 Rechercher par nom, prénom, email"
+      [(ngModel)]="searchTerm"
+      (input)="filterUsers()"
+    />
+  </div>
+
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Adresse Email</th>
+        <th>Numéro Téléphone</th>
+        <th>Statut</th>
+        <th>Actions</th>
+        <th>Rôle</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of filteredUsers; let i = index">
+        <td>{{ user.nom }}</td>
+        <td>{{ user.prenom }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.numtel }}</td>
+        <td>{{ user.actif === '1' ? 'Oui' : 'Non' }}</td>
+        <td class="action-buttons">
+          <button class="edit-btn" (click)="editUser(user)">✏️</button>
+          <button class="toggle-btn" (click)="toggleUserStatus(user)">
+            {{ user.actif === '1' ? '🔒' : '🔓' }}
+          </button>
+        </td>
+        <td>{{ user.role }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GroupeIdentiqueComponent } from './groupe-identique.component';
+import { PretManagementComponent } from './pret-management.component';
 
-describe('GroupeidentiqueComponent', () => {
-  let component: GroupeIdentiqueComponent;
-  let fixture: ComponentFixture<GroupeIdentiqueComponent>;
+describe('PretManagementComponent', () => {
+  let component: PretManagementComponent;
+  let fixture: ComponentFixture<PretManagementComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GroupeIdentiqueComponent]
+      imports: [PretManagementComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GroupeIdentiqueComponent);
+    fixture = TestBed.createComponent(PretManagementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -53,7 +53,7 @@
   <div class="toolbar">
     <input class="form-control"  type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="onSearch()" />
     <select class="form-control"  [(ngModel)]="sortBy" (change)="onSearch()">
-      <option value="designation">Code </option>
+      <option value="codeGrp">Code </option>
       <option value="typeEquipNom">Type</option>
       <option value="marqueNom">Marque</option>
     </select>
@@ -70,72 +70,134 @@
         <th>Organes</th>
         <th>Caractéristiques</th>
         <th style="text-align: left;">
-          <span style="display: inline-block; transform: translateX(200px);">Actions</span>
+          <span style="display: inline-block; transform: translateX(115px);">Actions</span>
         </th>
       </tr>
     </thead>
-    <tbody>
-      <tr *ngFor="let groupe of groupes">
-        <td>{{ groupe.CodeGrp  }}</td>
-        <td>{{ groupe.marqueNom }}</td>
-        <td>{{ groupe.typeEquipNom }}</td>
-        <td>
-          <ul>
-            <li *ngFor="let organe of groupe.organes">{{ organe }}</li>
-          </ul>
-        </td>
-        <td>
-          <ul>
-            <li *ngFor="let caracteristique of groupe.caracteristiques">{{ caracteristique }}</li>
-          </ul>
-        </td>
-        <td>
-          <button class="btn btn-warning me-2" (click)="edit(groupe.id)">✏️</button>
-            <button class="btn btn-danger orange" (click)="delete(groupe.id)">🗑️</button>
-        </td>
-      </tr>
-    </tbody>
+        <tbody>
+          <tr *ngFor="let g of groupes">
+            <td>{{ g.codeGrp }}</td>
+            <td>{{ g.marqueNom }}</td>
+            <td>{{ g.typeEquipNom }}</td>
+            <td>
+              <ng-container *ngIf="g.organes && g.organes.length > 0; else aucunOrgane">
+                <ul>
+                  <li *ngFor="let org of g.organes">{{ org }}</li>
+                </ul>
+              </ng-container>
+              <ng-template #aucunOrgane>
+                Aucun
+              </ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="g.caracteristiques && g.caracteristiques.length > 0; else aucuneCarac">
+                <ul>
+                  <li *ngFor="let carac of g.caracteristiques">{{ carac }}</li>
+                </ul>
+              </ng-container>
+              <ng-template #aucuneCarac>
+                Aucun
+              </ng-template>
+            </td>
+              <td>
+              <button class="btn btn-warning me-2 tooltip" (click)="edit(g.id)">✏️
+                
+                <span class="tooltip-text">Modifier ce Groupe</span>
+              </button>
+              <button class="btn btn-danger orange tooltip tooltip-left" (click)="deleteGroupe(g)">🗑️
+                
+                <span class="tooltip-text">Supprimer ce Groupe</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        
   </table>
   
-
-
-  <div class="modal" *ngIf="showForm">
-    <div class="modal-content">
-      <h2>Modifier un Organe</h2>
-  
-      <form  class="form-container">
-        <div class="form-group">  <label>Désignation</label>
-          <input [(ngModel)]="groupe.designation" name="designation" placeholder="Désignation"  required />
-      
-        </div><!-- Caractéristiques -->
-        <div class="form-group">  
-          <label>Caractéristiques</label>
-          <div *ngFor="let c of caracteristiques">
-            <input type="checkbox" 
-                   [value]="c.id" 
-                   (change)="toggleCarac(c.id)" 
-                   [checked]="groupe.caracteristiques.includes(c.id)" />
-            {{ c.libelle }}
-          </div>
-        </div>
-        
-        <!-- Organes -->
-        <div class="form-group">  
-          <label>Organes</label>
-          <div *ngFor="let o of organes">
-            <input type="checkbox" 
-                   [value]="o.id" 
-                   (change)="toggleOrgane(o.id)" 
-                   [checked]="groupe.organes.includes(o.id)"  />
-            {{ o.libelle }}
-          </div>
-        </div>
-        
-    <div class="form-group">
-    <div class="actions">
-      <button class="btn orange" type="submit" (click)="save()">💾 Enregistrer</button>
-
-      <button class="btn grey" type="submit"  (click)="closeForm()">❌ Annuler</button>
-    </div></div>
-  </form>
+<!-- Modal de suppression -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm">
+  <div class="modal">
+    <div class="form">
+      <h3>Confirmer la suppression</h3>
+      <p>Voulez-vous vraiment supprimer le groupe <strong>{{ groupeToDelete?.codeGrp }}</strong> ?</p>
+      <div class="actions">
+        <button class="btn orange" (click)="confirmDelete()"> Supprimer</button>
+        <button class="btn grey" (click)="cancelDelete()"> Annuler</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!--  MODALE DECONNEXION -->
+<div class="modal" *ngIf="showLogoutConfirm">
+  <div class="form">
+    <h3>Déconnexion</h3>
+    <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmLogout()">Oui</button>
+      <button class="btn grey" (click)="cancelLogout()"> Non</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modale formulaire de modification -->
+<div class="modal" *ngIf="showForm">
+  <div class="modal-content">
+    <h2>Modifier Groupe Identique</h2>
+    <form class="form-container">
+      <div class="form-group">
+        <label>Code Groupe:</label>
+        <input type="text" [(ngModel)]="groupe.codeGrp" name="codeGrp" disabled />
+      </div>
+
+      <div class="form-group">
+        <label>Type:</label>
+        <input type="text" [value]="groupe.typeEquipNom" disabled />
+      </div>
+
+      <div class="form-group">
+        <label>Marque:</label>
+        <input type="text" [value]="groupe.marqueNom" disabled />
+      </div>
+
+      <div class="form-group">
+        <label>Organes:</label>
+        <div class="scrollable-list">
+          <div *ngFor="let organe of organes">
+            <label>
+              <input type="checkbox"
+                     [checked]="groupe.organes.includes(organe.id_organe)"
+                     (change)="onCheckOrgane(organe.id_organe, $event)" />
+              {{ organe.libelle_organe }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Caractéristiques:</label>
+        <div class="scrollable-list">
+          <div *ngFor="let carac of caracteristiques">
+            <label>
+              <input type="checkbox"
+                     [checked]="groupe.caracteristiques.includes(carac.id_caracteristique)"
+                     (change)="onCheckCarac(carac.id_caracteristique, $event)" />
+              {{ carac.libelle }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn orange" type="button" (click)="save()"> 💾 Enregistrer</button>
+        <button class="btn grey" type="button" (click)="closeForm()">❌ Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+    
+ 
+
+

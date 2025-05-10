@@ -1,0 +1,31 @@
+// === components/movement-management.component.scss ===
+.movement-container {
+    padding: 2rem;
+  
+    h1 {
+      font-size: 24px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+  
+    .movement-cards {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+  
+      .card {
+        background-color: #fff3e0;
+        padding: 1.5rem 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+  
+        &:hover {
+          transform: translateY(-5px);
+          background-color: #ffe0b2;
+        }
+      }
+    }
+  }
+  

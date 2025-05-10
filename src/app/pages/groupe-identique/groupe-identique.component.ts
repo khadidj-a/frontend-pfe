@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { GroupeIdentiqueDTO, UpdateGroupeIdentiqueDTO } from '../../models/groupe-identique.model';
 import { GroupeIdentiqueService } from '../../services/groupe-identique.service';
 import { Router } from '@angular/router';
+import { Caracteristique } from '../../models/caracteristique.model';
+import { Organee } from '../../models/organe.model';
 
 @Component({
   selector: 'app-groupe-identique',
@@ -14,41 +16,37 @@ import { Router } from '@angular/router';
 })
 export class GroupeIdentiqueComponent implements OnInit {
   groupes: GroupeIdentiqueDTO[] = [];
-  searchTerm: string = '';
-  sortBy: string = 'designation';
-  ascending: boolean = true;
-  showForm: boolean = false;
-  profileOpen: boolean = false;
-  isDropdownOpen: boolean = false;
-  username: string = 'Admin';
-  selectedGroupeId!: number;
-  showDeleteConfirm = false;
-groupeToDelete: GroupeIdentiqueDTO | null = null;
-
-showLogoutConfirm = false;
+  searchTerm = '';
+  sortBy = 'codeGrp';
+  ascending = true;
+  showForm = false;
+  profileOpen = false;
+  isDropdownOpen = false;
+  username = 'Admin';
+  selectedGroupeId: number = 0;
+  showLogoutConfirm = false;
 
   groupe = {
-    designation: '',
+    codeGrp: '',
     idType: 0,
     idMarque: 0,
+    marqueNom:'',
+    typeEquipNom:'',
     caracteristiques: [] as number[],
     organes: [] as number[]
   };
-
   marques: any[] = [];
   types: any[] = [];
-  caracteristiques: any[] = [];
-  organes: any[] = [];
+  caracteristiques: Caracteristique[] = [];
+organes: Organee[] = [];
+  showDeleteConfirm = false;
+  groupeToDelete: GroupeIdentiqueDTO | null = null;
 
   constructor(private service: GroupeIdentiqueService, private router: Router) {}
-
   ngOnInit(): void {
     this.loadData();
   }
-
-  toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
-  }
+  
 
   @HostListener('document:click', ['$event'])
   closeDropdownOnClickOutside(event: MouseEvent): void {
@@ -57,52 +55,50 @@ showLogoutConfirm = false;
       this.isDropdownOpen = false;
     }
   }
- 
-  loadData() {
-    this.service.GetAll().subscribe({
-      next: data => {
-        console.log("Groupe Identique chargées :", data);
-        this.groupes = data;
+
+  loadData(): void {
+    this.service.GetAll(this.searchTerm, this.sortBy, this.ascending).subscribe({
+      next: (data) => this.groupes = data,
+      error: (err) => console.error('Erreur de chargement', err)
+    });
+  }
+
+  loadCaracteristiques(typeId: number, marqueId: number): void {
+    if (!typeId || !marqueId) {
+      console.warn("Type ou Marque manquant - caractéristiques annulé", { typeId, marqueId });
+      return;
+    }
+    this.service.getCaracteristiquesByTypeAndMarque(typeId, marqueId).subscribe({
+      next: (data) => {
+        this.caracteristiques = data;
+        console.log("Caractéristiques chargées:", data);
       },
-      error: err => console.error("Erreur chargement caractéristiques :", err)
+      error: (err) => console.error("Erreur caractéristiques", err)
+    });
+  }
+  
+  loadOrganes(typeId: number, marqueId: number): void {
+    if (!typeId || !marqueId) {
+      console.warn("Type ou Marque manquant - organes annulé", { typeId, marqueId });
+      return;
+    }
+    this.service.getOrganesByTypeAndMarque(typeId, marqueId).subscribe({
+      next: (data) => {
+        this.organes = data;
+        console.log("Organes chargés:", data);
+      },
+      error: (err) => console.error("Erreur organes", err)
     });
   }
   
   
-  loadCaracteristiquesEtOrganes() {
-    if (this.groupe.idType && this.groupe.idMarque) {
-      // Charger les caractéristiques et organes en fonction de la marque et du type
-      this.service.getCaracteristiquesByMarqueEtType(this.groupe.idMarque, this.groupe.idType)
-        .subscribe(data => {
-          this.caracteristiques = data;
-          console.log('Caractéristiques chargées:', data);
-        });
-      this.service.getOrganesByMarqueEtType(this.groupe.idMarque, this.groupe.idType)
-        .subscribe(data => {
-          this.organes = data;
-          console.log('Organes chargés:', data);
-        });
-    }
-  }
   
 
-  toggleCarac(id: number) {
-    const index = this.groupe.caracteristiques.indexOf(id);
-    if (index > -1) this.groupe.caracteristiques.splice(index, 1);
-    else this.groupe.caracteristiques.push(id);
-  }
-
-  toggleOrgane(id: number) {
-    const index = this.groupe.organes.indexOf(id);
-    if (index > -1) this.groupe.organes.splice(index, 1);
-    else this.groupe.organes.push(id);
-  }
-
-  onSearch() {
+  onSearch(): void {
     this.loadData();
   }
 
-  toggleSort(column: string) {
+  toggleSort(column: string): void {
     if (this.sortBy === column) {
       this.ascending = !this.ascending;
     } else {
@@ -111,71 +107,126 @@ showLogoutConfirm = false;
     }
     this.loadData();
   }
-  save() {
-    const dto: UpdateGroupeIdentiqueDTO = {
-      designation: this.groupe.designation,
-      id_caracteristiques: this.groupe.caracteristiques,
-      id_organes: this.groupe.organes
-    };
-  
-    const id = this.selectedGroupeId || 0;
-  
-    this.service.update(id, dto).subscribe(() => {
-      alert("Groupe enregistré avec succès !");
-      this.loadData();
-      this.showForm = false;
-    }, error => {
-      alert("Une erreur s'est produite lors de l'enregistrement.");
-    });
-  }
-  
 
-  openForm() {
-    this.showForm = true;
-  }
-  closeForm() {
-    this.showForm = false;// <==== ajoute ça !
-  }
-  edit(id: number) {
+  edit(id: number): void {
+    const groupe = this.groupes.find(g => g.id === id);
+    if (!groupe) return;
+  
+    console.log(" Groupe trouvé :", groupe);
     this.selectedGroupeId = id;
-    this.service.getById(id).subscribe((groupe: any) => {
-      this.groupe = {
-        designation: groupe.designation,
-        idType: groupe.idType,
-        idMarque: groupe.idMarque,
-        caracteristiques: groupe.id_caracteristiques || [],
-        organes: groupe.id_organes || []
-      };
-      this.loadCaracteristiquesEtOrganes();
-      this.showForm = true;
-    });
-  }
-
-  delete(id: number) {
-    this.service.canDelete(id).subscribe((canDelete: boolean) => {
-      if (!canDelete) {
-        alert('Impossible de supprimer ce groupe : il est utilisé.');
+    this.groupe.codeGrp = groupe.codeGrp;
+    this.groupe.typeEquipNom = groupe.typeEquipNom;
+    this.groupe.marqueNom = groupe.marqueNom;
+  
+    // Appel à l'API pour obtenir les bons idType/idMarque + ids caractéristiques/organes
+    this.service.getById(id).subscribe((data) => {
+      console.log(" Données complètes du groupe:", data);
+  
+      // S'assurer que idType et idMarque sont bien présents dans la réponse
+      if (!data.idType || !data.idMarque) {
+        console.warn(" idType ou idMarque manquant dans la réponse", data);
         return;
       }
-      if (confirm('Supprimer ce groupe ?')) {
-        this.service.delete(id).subscribe(() => this.loadData());
+  
+      // Remplir tous les champs nécessaires
+      this.groupe.idType = data.idType;
+      this.groupe.idMarque = data.idMarque;
+      this.groupe.caracteristiques = data.caracteristiquesIds ?? [];
+      this.groupe.organes = data.organesIds ?? [];
+  
+      // Chargement des listes liées au type/marque
+      this.loadCaracteristiques(this.groupe.idType, this.groupe.idMarque);
+      this.loadOrganes(this.groupe.idType, this.groupe.idMarque);
+  
+      this.showForm = true;
+    }, error => {
+      console.error("Erreur getById:", error);
+    });
+  }
+  
+  
+
+  
+  save(): void {
+    const dto: UpdateGroupeIdentiqueDTO = {
+      id_organes: this.groupe.organes,
+      id_caracteristiques: this.groupe.caracteristiques
+    };
+  
+    this.service.update(this.selectedGroupeId, dto).subscribe({
+      next: () => {
+        this.loadData();
+        this.closeForm(); // ← ferme bien la modale après update
+      },
+      error: (err) => console.error("Erreur de mise à jour", err)
+    });
+    
+  }
+  
+  openForm(): void {
+    console.log('Ouverture du formulaire');
+    this.showForm = true;
+  }
+  
+
+
+  closeForm(): void {
+    this.showForm = false;
+  }
+  
+  deleteGroupe(groupe: GroupeIdentiqueDTO): void {
+    this.service.canDelete(groupe.id).subscribe(can => {
+      if (!can) {
+        alert("Impossible de supprimer ce groupe, il est utilisé.");
+        return;
       }
+      this.groupeToDelete = groupe;
+      this.showDeleteConfirm = true;
     });
   }
 
+  confirmDelete(): void {
+    if (this.groupeToDelete) {
+      this.service.delete(this.groupeToDelete.id).subscribe(() => {
+        this.loadData();
+        this.groupeToDelete = null;
+        this.showDeleteConfirm = false;
+      });
+    }
+  }
+
+  cancelDelete(): void {
+    this.groupeToDelete = null;
+    this.showDeleteConfirm = false;
+  }
+
+  logout(): void {
+    this.showLogoutConfirm = true;
+  }
+
+  confirmLogout(): void {
+    this.showLogoutConfirm = false;
+    window.location.href = "/login";
+  }
+
+  cancelLogout(): void {
+    this.showLogoutConfirm = false;
+  }
+
+  onCheckOrgane(id: number, event: any): void {
+    if (event.target.checked) {
+      if (!this.groupe.organes.includes(id)) this.groupe.organes.push(id);
+    } else {
+      this.groupe.organes = this.groupe.organes.filter(i => i !== id);
+    }
+  }
   
- logout() {
-  this.showLogoutConfirm = true;
-}
-
-confirmLogout() {
-  this.showLogoutConfirm = false;
-  // redirige vers login ou autre action
-  window.location.href = "/login"; // ou un appel à AuthService.logout()
-}
-
-cancelLogout() {
-  this.showLogoutConfirm = false;
-}
-
+  onCheckCarac(id: number, event: any): void {
+    if (event.target.checked) {
+      if (!this.groupe.caracteristiques.includes(id)) this.groupe.caracteristiques.push(id);
+    } else {
+      this.groupe.caracteristiques = this.groupe.caracteristiques.filter(i => i !== id);
+    }
+  }
+  
 }

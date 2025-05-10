@@ -213,9 +213,9 @@ body {
   }
   
   th, td {
-    padding: 12px;
+    padding: 8px;
     text-align: left;
-    border-bottom: 3px solid #eee;
+    border-bottom: 3.5px solid #eee;
   }
   
   th {
@@ -309,7 +309,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 250px; /* hauteur limitée pour la liste */
+    max-height: 300px; /* hauteur limitée pour la liste */
     overflow-y: auto; /* scroll seulement sur la liste */
     padding: 10px;
     border: 1px solid #ccc;
@@ -326,7 +326,7 @@ body {
   
   .value-input {
     flex: 1;
-    padding: 5px;
+    padding: 8px;
   }
   
   .buttons {
@@ -427,4 +427,9 @@ table td:last-child {
   .actions .btn {
     flex: 1;
   }
-  
+  .scrollable-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+  }

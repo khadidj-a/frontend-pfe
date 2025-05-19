@@ -26,6 +26,8 @@ export class LoginComponent {
     this.authService.login({ email: this.email, motpasse: this.motpasse }).subscribe({
       next: (response: any) => {
         this.authService.saveToken(response.token);
+        this.authService.saveUser(response.user); // ✅ Ajoute ceci
+
         const role = this.authService.getUserRole();
         this.router.navigate(['/dashboard']);
       },

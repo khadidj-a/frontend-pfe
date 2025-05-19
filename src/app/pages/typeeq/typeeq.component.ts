@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TypeService } from '../../services/typeeq.service';
 import { TypeEqpt } from '../../models/typeeq.model';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-typeeqpt',
@@ -19,6 +22,7 @@ export class TypeEqptComponent implements OnInit {
   sortBy = 'codetype';
   ascending = true;
   showForm = false;
+  user: any = {};
   profileOpen = false;
   isDropdownOpen = false;
   username = 'Admin';
@@ -27,12 +31,20 @@ export class TypeEqptComponent implements OnInit {
   
  typeCount: number = 0;
   showLogoutConfirm = false;
+  role: string | null = null;
   
-  constructor(private typeService: TypeService) {}
+  constructor(private typeService: TypeService, private router: Router,
+    private authService: AuthService,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadTypes();
     this.getTypeCount();
+    const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData); 
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
   getTypeCount() {
     this.typeService.getTypeCount().subscribe(count => {
@@ -56,7 +68,10 @@ export class TypeEqptComponent implements OnInit {
 
   loadTypes() {
     this.typeService.getAllTypes(this.searchTerm, this.sortBy, this.ascending)
-      .subscribe(data => this.types = data);
+      .subscribe(data =>{ this.types = data;
+        
+        this.typeCount = data.length;
+      });
   }
 
   search() {
@@ -109,16 +124,18 @@ export class TypeEqptComponent implements OnInit {
   }
 
 
-    deletetype(type: TypeEqpt) {
-      this.typeService.canDelete(type.idtypequip).subscribe(can => {
-        if (!can) {
-          alert("Impossible de supprimer ce Type, elle est utilisée.");
-          return;
-        }
-        this.typeToDelete = type;
-        this.showDeleteConfirm = true;
-      });
-    }
+  deletetype(type: TypeEqpt) {
+    this.typeService.canDelete(type.idtypequip).subscribe(can => {
+      if (!can) {
+        alert("Impossible de supprimer ce Type, elle est utilisée.");
+        return;
+      }
+      console.log('Boîte de confirmation doit s’afficher'); // debug
+      this.typeToDelete = type;
+      this.showDeleteConfirm = true;
+    });
+  }
+  
     
     confirmDelete() {
       if (this.typeToDelete) {
@@ -148,5 +165,14 @@ confirmLogout() {
 cancelLogout() {
   this.showLogoutConfirm = false;
 }
+navigateTo(route: string): void {
+  this.router.navigate([route]);
+}
+get isAdminIT(): boolean {
+  return this.role === 'Admin IT';
+}
 
+get isAdminMetier(): boolean {
+  return this.role === 'Admin Métier';
+}
 }

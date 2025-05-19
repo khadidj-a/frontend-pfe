@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../services/user.service';
 import { UserDialogComponent } from '../../user-dialog/user-dialog.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-user-management',
@@ -20,15 +21,28 @@ export class UserManagementComponent implements OnInit {
   filteredUsers: any[] = [];
   message: string = '';
   error: string = '';
-
+  currentUser: any;
+  user: any = {};
+  role: string | null = null;
+  profileOpen = false;
+  username = 'Utilisateur';
+  showLogoutConfirm = false;
+  utilisateurCount: number = 0;
   constructor(
     private router: Router,
     private userService: UserService,
-    private dialog: MatDialog
+    private authService: AuthService,private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+      this.getutilisateurCount();
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData); // 👈 on charge nom + prénom
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
 
   roleMap: { [key: number]: string } = {
@@ -44,19 +58,25 @@ export class UserManagementComponent implements OnInit {
           ...u,
           role: this.roleMap[u.idrole] || 'Inconnu'
         }));
+        
         this.filteredUsers = this.users;
+        
       },
       error: () => this.error = "Erreur de chargement des utilisateurs."
     });
   }
 
   filterUsers() {
+    
     const term = this.searchTerm.toLowerCase();
+    
     this.filteredUsers = this.users.filter(user =>
       user.nom.toLowerCase().includes(term) ||
       user.prenom.toLowerCase().includes(term) ||
       user.email.toLowerCase().includes(term)
     );
+    
+  this.utilisateurCount = this.filteredUsers.length;
   }
 
   openAddDialog() {
@@ -162,4 +182,36 @@ export class UserManagementComponent implements OnInit {
   navigateTo(route: string): void {
     this.router.navigate([route]);
   }
+  
+  logout() {
+    this.showLogoutConfirm = true;
+  }
+  
+  confirmLogout() {
+    this.showLogoutConfirm = false;
+    this.authService.logout();
+  }
+  
+  cancelLogout() {
+    this.showLogoutConfirm = false;
+  }
+  navigateToUserManagement() {
+    if (this.router.url !== '/user-management') {
+      this.router.navigate(['/user-management']);
+    }
+  }
+  getutilisateurCount() {
+    this.userService.getutilisateurCount().subscribe(count => {
+    this.utilisateurCount = count;
+    
+  });
+}
+get isAdminIT(): boolean {
+  return this.role === 'Admin IT';
+}
+
+get isAdminMetier(): boolean {
+  return this.role === 'Admin Métier';
+}
+
 }

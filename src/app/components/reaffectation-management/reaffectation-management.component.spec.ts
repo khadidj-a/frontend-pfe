@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ReaffectationManagementComponent } from './reaffectation-management.component';
+import { ReaffectationComponent } from './reaffectation-management.component';
 
 describe('ReaffectationManagementComponent', () => {
-  let component: ReaffectationManagementComponent;
-  let fixture: ComponentFixture<ReaffectationManagementComponent>;
+  let component: ReaffectationComponent;
+  let fixture: ComponentFixture<ReaffectationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReaffectationManagementComponent]
+      imports: [ReaffectationComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ReaffectationManagementComponent);
+    fixture = TestBed.createComponent(ReaffectationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

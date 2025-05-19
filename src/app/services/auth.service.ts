@@ -27,8 +27,10 @@ export class AuthService {
     if (!token) return null;
 
     try {
-      const decoded = jwtDecode(token);
+      const decoded = jwtDecode(token); console.log('Token décodé :', decoded);
       return decoded;
+     
+
     } catch (error) {
       console.error('Invalid token:', error);
       return null;
@@ -47,6 +49,22 @@ export class AuthService {
 
     return null;
   }
+  getUserUniteId(): string | null {
+    const user = this.getCurrentUser();
+    if (!user) return null;
+  
+    // Utilise la clé exacte utilisée dans le backend si c'est un claim personnalisé
+    const uniteClaimKey = 'idunite'; // ou par exemple : 'http://schemas.myapp.com/claims/idunite'
+  
+    if (uniteClaimKey in user) {
+      console.log('ID Unité récupéré depuis le token :', user[uniteClaimKey]);
+      return user[uniteClaimKey];
+    }
+  
+    console.warn('Clé idunite non trouvée dans le token.');
+    return null;
+  }
+  
 
   isLoggedIn(): boolean {
     return !!this.getToken();
@@ -60,4 +78,13 @@ export class AuthService {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
+  saveUser(user: any): void {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+  
+  getUser(): any | null {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  }
+  
 }

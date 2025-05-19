@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarqueService } from '../../services/marque.service';
 import { Marque } from '../../models/marque.model';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-marque',
@@ -19,6 +22,7 @@ export class MarqueComponent implements OnInit {
   selectedMarque: Marque | null = null;
   showForm = false;
   nom_fabriquant_input = '';
+  user: any = {};
   profileOpen = false;
   username = 'Utilisateur';
  isDropdownOpen = false;
@@ -26,12 +30,20 @@ export class MarqueComponent implements OnInit {
 marqueToDelete: Marque | null = null;
 showLogoutConfirm = false;
 marqueCount: number = 0;
+role: string | null = null;
 
-  constructor(private marqueService: MarqueService) {}
+  constructor(private marqueService: MarqueService, private router: Router,
+    private authService: AuthService,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadMarques();
     this.getMarqueCount();
+    const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData); 
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
@@ -48,8 +60,12 @@ marqueCount: number = 0;
   }
   loadMarques() {
     this.marqueService.getAll(this.searchTerm, this.sortBy, this.ascending)
-      .subscribe(data => this.marques = data);
+      .subscribe(data => {
+        this.marques = data;
+        this.marqueCount = data.length;
+      });
   }
+  
   getMarqueCount() {
     this.marqueService.getMarqueCount().subscribe(count => {
     this.marqueCount = count;
@@ -149,6 +165,15 @@ cancelLogout() {
   this.showLogoutConfirm = false;
 }
 
- 
+navigateTo(route: string): void {
+  this.router.navigate([route]);
+}
+get isAdminIT(): boolean {
+  return this.role === 'Admin IT';
+}
+
+get isAdminMetier(): boolean {
+  return this.role === 'Admin Métier';
+}
 
 }

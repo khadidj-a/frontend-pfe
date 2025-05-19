@@ -1,34 +1,53 @@
-<!-- HEADER STYLE DASHBOARD -->
-<header class="custom-header">
+<div class="topbar">
   <div class="logo">
-    <img src="../../assets/logo.png" alt="Logo" />
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
   </div>
 
-  <nav class="nav-links">
-    <div class="card" (click)="navigateTo('/dashboard')">Accueil</div>
-    <div class="card" (click)="navigateTo('/equipment')">Équipement</div>
-   
-    <div class="card" (click)="navigateTo('/movements')">Mouvement</div>
-    <div class="card" (click)="navigateTo('/codification')">Codification</div>
-  </nav>
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <a class="menu-button" (click)="navigateTo('/equipment')">Équipement</a>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/reforme">Réforme</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/movements/pret">Prêt</a>
+      </div>
+    </div>
 
-  <div class="profile">
-    <span class="profile-icon">👤</span>
-    <span class="profile-name">Admin</span>
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content">
+        <a href="/unite">Unité</a>
+        <a href="/organe">Organe</a>
+        <a href="/marque">Marque</a>
+        <a href="/categorie">Catégorie</a>
+        <a href="/typeeq">Type</a>
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/groupeidentique">Groupe Identique</a>
+      </div>
+    </div>
   </div>
-</header>
 
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+      <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  
 <!-- USER MANAGEMENT COMPONENT -->
 <div class="user-management">
   <!-- Ligne avec Retour et Ajouter -->
-  <div class="action-bar">
-    <button (click)="goBack()" class="btn-retour">← Retour au tableau de bord</button>
-    <button class="add-user-button" (click)="openAddDialog()">+ Ajouter un utilisateur</button>
-  </div>
-
-  <div *ngIf="message" class="success-message">{{ message }}</div>
-  <div *ngIf="error" class="error-message">{{ error }}</div>
-
+  <!-- Nouvelle barre d'action combinée -->
+<div class="action-bar-combined">
   <div class="search-bar">
     <input
       type="text"
@@ -38,7 +57,28 @@
     />
   </div>
 
-  <table class="user-table">
+  <button class="add-user-button" (click)="openAddDialog()">+ Ajouter un utilisateur</button>
+</div>
+
+
+
+     <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
+    <h2 class="header">Liste des Utilisateurs
+      <span class="tooltip badge">
+        {{ utilisateurCount }}
+        <span class="tooltip-text">Nombre total des Utilisateurs</span>
+      </span>
+    </h2>
+  <table >
     <thead>
       <tr>
         <th>Nom</th>
@@ -46,8 +86,11 @@
         <th>Adresse Email</th>
         <th>Numéro Téléphone</th>
         <th>Statut</th>
-        <th>Actions</th>
         <th>Rôle</th>
+        <th style="text-align: left;">
+          <span style="display: inline-block; transform: translateX(55px);">Actions</span>
+        </th>
+        
       </tr>
     </thead>
     <tbody>
@@ -55,15 +98,21 @@
         <td>{{ user.nom }}</td>
         <td>{{ user.prenom }}</td>
         <td>{{ user.email }}</td>
-        <td>{{ user.numtel }}</td>
+        <td>{{ user.numtel }}</td> 
         <td>{{ user.actif === '1' ? 'Oui' : 'Non' }}</td>
-        <td class="action-buttons">
-          <button class="edit-btn" (click)="editUser(user)">✏️</button>
-          <button class="toggle-btn" (click)="toggleUserStatus(user)">
-            {{ user.actif === '1' ? '🔒' : '🔓' }}
-          </button>
-        </td>
         <td>{{ user.role }}</td>
+        <td>
+          <div class="action-buttonss">
+            <button class="edit-btn tooltip" (click)="editUser(user)">✏️
+              <span class="tooltip-text">Modifier cet Utilisateur</span>
+            </button>
+            <button class="toggle-btn orange tooltip tooltip-left" (click)="toggleUserStatus(user)">
+              {{ user.actif === '1' ? '🔒' : '🔓' }}
+              <span class="tooltip-text">{{ user.actif === '1' ? ' Désactiver ce compte' : ' Activer ce compte' }} </span>
+            </button>
+          </div>
+        </td>
+        
       </tr>
     </tbody>
   </table>

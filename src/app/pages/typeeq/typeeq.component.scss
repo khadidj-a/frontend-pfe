@@ -291,8 +291,12 @@ tr:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
-
+.form input,
+  .form select{
+  width: 100%;
+}
 .form {
   background-color: white;
   padding: 20px;
@@ -301,7 +305,6 @@ tr:hover {
   max-width: 450px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-
 .toolbar input.form-control {
     
   min-width: 350px;

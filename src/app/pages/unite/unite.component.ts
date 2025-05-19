@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UniteService } from '../../services/unite.service';
 import { Unite, Region, Wilaya } from '../../models/unite.model';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-unite',
@@ -19,6 +22,7 @@ export class UniteComponent implements OnInit {
   selectedUnite: Unite | null = null;
   searchTerm = '';
   sortBy = 'codeunite';
+  user: any = {};
   ascending = true;
   showForm = false;
   profileOpen = false;
@@ -31,19 +35,27 @@ showLogoutConfirm = false;
 codeunite_input = '';
 codeError = '';
 designationError = '';
+role: string | null = null;
 
   // Champs du formulaire
   designation_input = '';
   selectedWilaya: number | null = null;
   selectedRegion: number | null = null;
 
-  constructor(private uniteService: UniteService) {}
+  constructor(private uniteService: UniteService, private router: Router,
+    private authService: AuthService,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadUnites();
     this.loadWilayas();
     this.loadRegions();
     this.getUniteCount();
+    const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData);
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
@@ -63,7 +75,9 @@ designationError = '';
       .subscribe(data => {
         console.log(data);  // Ajouter un log pour vérifier les données
         this.unites = data;
-        this.getUniteCount(); 
+        
+        this.uniteCount = data.length;
+       
       });
       
 }
@@ -207,5 +221,14 @@ cancelDeleteUnite() {
   cancelLogout() {
     this.showLogoutConfirm = false;
   }
-  
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+  get isAdminIT(): boolean {
+    return this.role === 'Admin IT';
+  }
+
+  get isAdminMetier(): boolean {
+    return this.role === 'Admin Métier';
+  }
 }

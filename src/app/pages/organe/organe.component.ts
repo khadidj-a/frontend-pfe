@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrganeService } from '../../services/organe.service';
 import { Organe, Marque, Caracteristique } from '../../models/organe.model';
-
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-organe',
@@ -17,7 +19,7 @@ export class OrganeComponent implements OnInit {
   selectedOrgane: Organe | null = null;
   marques: Marque[] = [];
   caracteristiques: (Caracteristique & { checked?: boolean, valeur?: string })[] = [];
-
+  user: any = {};
   selectedMarqueId: number | null = null;
   searchTerm = '';
   sortBy = 'codeorgane';
@@ -35,14 +37,22 @@ organeToDelete: Organe | null = null;
 modele_input = '';
 organeCount: number = 0;
 showLogoutConfirm = false;
+role: string | null = null;
 
-  constructor(private organeService: OrganeService) {}
+  constructor(private organeService: OrganeService, private router: Router,
+    private authService: AuthService,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadOrganes();
     this.loadMarques();
     this.loadCaracteristiques();
     this.getOrganeCount();
+    const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData); 
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
 
   toggleDropdown() {
@@ -62,13 +72,17 @@ showLogoutConfirm = false;
   });
 }
 
-  loadOrganes() {
-    this.organeService.getOrganes(this.searchTerm, this.sortBy, this.ascending)
-      .subscribe({
-        next: data => this.organes = data,
-        error: err => console.error("Erreur chargement organes :", err)
-      });
-  }
+loadOrganes() {
+  this.organeService.getOrganes(this.searchTerm, this.sortBy, this.ascending)
+    .subscribe({
+      next: data => {
+        this.organes = data;
+        this.organeCount = data.length;
+      },
+      error: err => console.error("Erreur chargement organes :", err)
+    });
+}
+
   loadMarques() {
     this.organeService.getMarques().subscribe({
       next: data => {
@@ -231,5 +245,14 @@ showLogoutConfirm = false;
   cancelLogout() {
     this.showLogoutConfirm = false;
   }
-  
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+  get isAdminIT(): boolean {
+    return this.role === 'Admin IT';
+  }
+
+  get isAdminMetier(): boolean {
+    return this.role === 'Admin Métier';
+  }
 }

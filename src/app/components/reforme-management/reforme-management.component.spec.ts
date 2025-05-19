@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ReformeManagementComponent } from './reforme-management.component';
+import { ReformeComponent } from './reforme-management.component';
 
 describe('ReformeManagementComponent', () => {
-  let component: ReformeManagementComponent;
-  let fixture: ComponentFixture<ReformeManagementComponent>;
+  let component: ReformeComponent;
+  let fixture: ComponentFixture<ReformeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReformeManagementComponent]
+      imports: [ReformeComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ReformeManagementComponent);
+    fixture = TestBed.createComponent(ReformeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

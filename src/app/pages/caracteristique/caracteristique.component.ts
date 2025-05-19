@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CaracteristiqueService } from '../../services/caracteristique.service';
 import { Caracteristique } from '../../models/caracteristique.model';
-
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-caracteristique',
   standalone: true,
@@ -21,18 +23,29 @@ export class CaracteristiqueComponent implements OnInit {
   showForm = false;
   profileOpen = false;
   username = 'Utilisateur';
+  currentUser: any;
  isDropdownOpen = false;
 showDeleteConfirm = false;
 categorieToDelete: Caracteristique | null = null;
 caracteristiqueCount: number = 0;
 showLogoutConfirm = false;
+user: any = {};
+role: string | null = null;
 
-  constructor(private carService: CaracteristiqueService) {}
+  constructor(private carService: CaracteristiqueService, private router: Router,
+    private authService: AuthService,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadCaracteristiques();
     
     this.getCaracteristiqueCount();
+    
+    const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData); 
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
 
   
@@ -40,7 +53,7 @@ showLogoutConfirm = false;
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  @HostListener('document:click', ['$event']) // Ajoutez ce décorateur
+  @HostListener('document:click', ['$event']) 
   closeDropdownOnClickOutside(event: MouseEvent): void {
     const dropdown = document.querySelector('.dropdown') as HTMLElement;
     const dropdownContent = document.querySelector('.dropdown-content') as HTMLElement;
@@ -55,6 +68,7 @@ showLogoutConfirm = false;
     this.carService.getAll(this.searchTerm, this.sortBy, this.ascending)
       .subscribe((data: Caracteristique[]) => {
         this.caracteristiques = data;
+        this.caracteristiqueCount = data.length;
         console.log("Caractéristiques chargées :", data); // debug
       });
   }
@@ -143,8 +157,7 @@ cancelDeleteCaracteristique(): void {
    
    confirmLogout() {
      this.showLogoutConfirm = false;
-     // redirige vers login ou autre action
-     window.location.href = "/login"; // ou un appel à AuthService.logout()
+     this.authService.logout();
    }
    
    cancelLogout() {
@@ -155,5 +168,17 @@ cancelDeleteCaracteristique(): void {
     this.caracteristiqueCount = count;
   });
 }
+navigateTo(route: string): void {
+  this.router.navigate([route]);
+}
+navigateToUserManagement(): void {
+  this.router.navigate(['/user-management']);
+}
+get isAdminIT(): boolean {
+  return this.role === 'Admin IT';
+}
 
+get isAdminMetier(): boolean {
+  return this.role === 'Admin Métier';
+}
 }

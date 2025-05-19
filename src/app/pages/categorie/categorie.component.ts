@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategorieService } from '../../services/categorie.service';
 import { Categorie } from '../../models/categorie.model';
-
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-categorie',
   standalone: true,
@@ -26,14 +28,22 @@ export class CategorieComponent implements OnInit {
   isDropdownOpen = false;
   showDeleteConfirm = false;
 categorieToDelete: Categorie| null = null;
-
+user: any = {};
+role: string | null = null;
 showLogoutConfirm = false;
 categorieCount: number = 0;
-  constructor(private categorieService: CategorieService) {}
+  constructor(private categorieService: CategorieService, private router: Router,
+    private authService: AuthService,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadCategories();
     this.getCategorieCount();
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      this.user = JSON.parse(userData);
+    }
+    this.user = this.authService.getUser();
+    this.role = this.authService.getUserRole();
   }
 
   toggleDropdown() {
@@ -52,6 +62,7 @@ categorieCount: number = 0;
     this.categorieService.getAll(this.searchTerm, this.sortBy, this.ascending)
       .subscribe((data: Categorie[]) => {
         this.categories = data;
+        this.categorieCount = data.length;
         console.log("Catégories chargées :", data);
       });
   }
@@ -155,6 +166,14 @@ categorieCount: number = 0;
   }
   
    
-  
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+  get isAdminIT(): boolean {
+    return this.role === 'Admin IT';
+  }
 
+  get isAdminMetier(): boolean {
+    return this.role === 'Admin Métier';
+  }
 }

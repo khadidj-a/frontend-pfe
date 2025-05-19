@@ -433,3 +433,11 @@ table td:last-child {
     border: 1px solid #ccc;
     padding: 10px;
   }
+
+  input[type="text"]:disabled {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px;
+    font-size: 14px;
+  }
+  

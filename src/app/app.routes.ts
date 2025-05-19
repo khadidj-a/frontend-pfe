@@ -1,107 +1,138 @@
-// app.routes.ts
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
 import { AdminGuard } from './guards/admin.guard';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent },
+
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+  },
   {
     path: 'user-management',
     component: UserManagementComponent,
-    canActivate: [AdminGuard],
+    canActivate: [authGuard, AdminGuard],
   },
 
   {
     path: 'movements',
     loadComponent: () =>
-      import('./components/movement-management.component').then(
-        (m) => m.MovementManagementComponent
+      import('./components/movement-management/movement-management.component').then(
+        m => m.MovementManagementComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'movements/pret',
     loadComponent: () =>
       import('./components/pret-management/pret-management.component').then(
-        (m) => m.PretManagementComponent
+        m => m.PretManagementComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'equipment',
     loadComponent: () =>
       import('./components/equipment-management.component').then(
-        (m) => m.EquipmentManagementComponent
+        m => m.EquipmentManagementComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'codification',
     loadComponent: () =>
-      import('./components/codification-management.component').then(
-        (m) => m.CodificationManagementComponent
+      import('./components/codification-management/codification-management.component').then(
+        m => m.CodificationManagementComponent
       ),
+    canActivate: [authGuard],
   },
 
   {
     path: 'unauthorized',
     loadComponent: () =>
       import('./components/unauthorized/unauthorized.component').then(
-        (m) => m.UnauthorizedComponent
+        m => m.UnauthorizedComponent
       ),
   },
 
-  // Codification pages
+  // Codification pages (protected)
   {
     path: 'marque',
     loadComponent: () =>
       import('./pages/marque/marque.component').then(
-        (m) => m.MarqueComponent
+        m => m.MarqueComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'typeeq',
     loadComponent: () =>
       import('./pages/typeeq/typeeq.component').then(
-        (m) => m.TypeEqptComponent
+        m => m.TypeEqptComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'unite',
     loadComponent: () =>
       import('./pages/unite/unite.component').then(
-        (m) => m.UniteComponent
+        m => m.UniteComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'caracteristique',
     loadComponent: () =>
       import('./pages/caracteristique/caracteristique.component').then(
-        (m) => m.CaracteristiqueComponent
+        m => m.CaracteristiqueComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'organe',
     loadComponent: () =>
       import('./pages/organe/organe.component').then(
-        (m) => m.OrganeComponent
+        m => m.OrganeComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'categorie',
     loadComponent: () =>
       import('./pages/categorie/categorie.component').then(
-        (m) => m.CategorieComponent
+        m => m.CategorieComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'groupeidentique',
     loadComponent: () =>
       import('./pages/groupe-identique/groupe-identique.component').then(
-        (m) => m.GroupeIdentiqueComponent
+        m => m.GroupeIdentiqueComponent
       ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reforme',
+    loadComponent: () =>
+      import('./components/reforme-management/reforme-management.component').then(
+        m => m.ReformeComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reaffectation',
+    loadComponent: () =>
+      import('./components/reaffectation-management/reaffectation-management.component').then(
+        m => m.ReaffectationComponent
+      ),
+    canActivate: [authGuard],
   },
 
   { path: '**', redirectTo: '/login' },

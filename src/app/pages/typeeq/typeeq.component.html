@@ -3,51 +3,44 @@
     <img src="assets/logo-eng.jpg" alt="ENG Logo" />
     <span class="site-name">Gestion des parcs des équipements</span>
   </div>
-  
-    <div class="menu-center">
-      <!-- Accueil -->
-      <a class="menu-button" href="#">Dashbord</a>
-    
-      <!-- Équipement -->
-      <a class="menu-button" href="#">Équipement</a>
-    
-      <!-- Utilisateur -->
-      <a class="menu-button" href="#">Utilisateur</a>
-    
-      <!-- Mouvement -->
-      <div class="dropdown">
-        <button class="menu-button">Mouvement</button>
-        <div class="dropdown-content">
-          <a href="#">Réforme</a>
-          <a href="#">Réaffectation</a>
-          <a href="#">Prêt</a>
-        </div>
-      </div>
-    
-      <!-- Codification -->
-      <div class="dropdown">
-        <button class="menu-button">Table de Codification</button>
-        <div class="dropdown-content">
-          <a href="http://localhost:4200/typeeq">Type</a>
-          <a href="http://localhost:4200/organe">Organe</a>
-          <a href="http://localhost:4200/marque">Marque</a>
-          <a href="http://localhost:4200/categorie">Catégorie</a>
-          <a href="http://localhost:4200/unite">Unité</a>
-          <a href="http://localhost:4200/caracteristique">Caractéristique</a>
-          <a href="http://localhost:4200/groupeidentique">Groupe Identique</a>
-        </div>
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <a class="menu-button" (click)="navigateTo('/equipment')">Équipement</a>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/reforme">Réforme</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/movements/pret">Prêt</a>
       </div>
     </div>
-  
-    <div class="profile" (click)="profileOpen = !profileOpen">
-      <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
-      <span class="profile-name">{{ username }}</span>
-      <div class="profile-menu" *ngIf="profileOpen">
-        <div class="menu-username">{{ username }}</div>
-        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content">
+        <a href="/unite">Unité</a>
+        <a href="/organe">Organe</a>
+        <a href="/marque">Marque</a>
+        <a href="/categorie">Catégorie</a>
+        <a href="/typeeq">Type</a>
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/groupeidentique">Groupe Identique</a>
       </div>
     </div>
   </div>
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
   
   <div class="container">
     <div class="toolbar">

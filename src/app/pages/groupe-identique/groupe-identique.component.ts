@@ -6,6 +6,8 @@ import { GroupeIdentiqueService } from '../../services/groupe-identique.service'
 import { Router } from '@angular/router';
 import { Caracteristique } from '../../models/caracteristique.model';
 import { Organee } from '../../models/organe.model';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-groupe-identique',
@@ -21,7 +23,9 @@ export class GroupeIdentiqueComponent implements OnInit {
   ascending = true;
   showForm = false;
   profileOpen = false;
+  user: any = {};
   isDropdownOpen = false;
+  groupeCount: number = 0;
   username = 'Admin';
   selectedGroupeId: number = 0;
   showLogoutConfirm = false;
@@ -41,10 +45,18 @@ export class GroupeIdentiqueComponent implements OnInit {
 organes: Organee[] = [];
   showDeleteConfirm = false;
   groupeToDelete: GroupeIdentiqueDTO | null = null;
+  role: string | null = null;
 
-  constructor(private service: GroupeIdentiqueService, private router: Router) {}
+  constructor(private service: GroupeIdentiqueService, private router: Router,private authService: AuthService,private dialog: MatDialog) {}
   ngOnInit(): void {
     this.loadData();
+    this.getGroupeCount();
+    const userData = localStorage.getItem('user');
+      if (userData) {
+        this.user = JSON.parse(userData); 
+      }
+      this.user = this.authService.getUser();
+      this.role = this.authService.getUserRole();
   }
   
 
@@ -55,13 +67,21 @@ organes: Organee[] = [];
       this.isDropdownOpen = false;
     }
   }
-
-  loadData(): void {
-    this.service.GetAll(this.searchTerm, this.sortBy, this.ascending).subscribe({
-      next: (data) => this.groupes = data,
-      error: (err) => console.error('Erreur de chargement', err)
-    });
-  }
+  getGroupeCount() {
+    this.service.getGroupeCount().subscribe(count => {
+    this.groupeCount = count;
+  });
+}
+loadData(): void {
+  this.service.GetAll(this.searchTerm, this.sortBy, this.ascending).subscribe({
+    next: (data) => {
+      this.groupes = data;
+      // Si tu voulais compter les groupes :
+      this.groupeCount = data.length;
+    },
+    error: (err) => console.error('Erreur de chargement', err)
+  });
+}
 
   loadCaracteristiques(typeId: number, marqueId: number): void {
     if (!typeId || !marqueId) {
@@ -228,5 +248,14 @@ organes: Organee[] = [];
       this.groupe.caracteristiques = this.groupe.caracteristiques.filter(i => i !== id);
     }
   }
-  
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+  get isAdminIT(): boolean {
+    return this.role === 'Admin IT';
+  }
+
+  get isAdminMetier(): boolean {
+    return this.role === 'Admin Métier';
+  }
 }
